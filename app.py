@@ -38,12 +38,12 @@ MODES = {
     "🗣️ Debate": {
         "key": "debate",
         "desc": "多个 Agent 相互辩论，通过对抗得出最优解",
-        "available": False,
+        "available": True,
     },
     "🪆 Nested Agent": {
         "key": "nested_agent",
         "desc": "Agent 内部动态召唤子 Agent，形成嵌套调用",
-        "available": False,
+        "available": True,
     },
 }
 
@@ -941,6 +941,188 @@ def _render_parallel_review():
         )
 
 
+def _render_debate():
+    """Debate 模式渲染函数 - 多 Agent 对抗辩论"""
+    from debate import stream_debate
+
+    AGENT_ICONS = {"pro": "🟢", "con": "🔴", "judge": "⚖️"}
+    AGENT_NAMES = {"pro": "支持方", "con": "反对方", "judge": "裁判 Agent"}
+
+    # ── 输入区 ────────────────────────────────────────────
+    col_input, col_btn = st.columns([5, 1])
+    with col_input:
+        code_input = st.text_area(
+            label="请输入需要辩论的代码",
+            placeholder="例如：这段单例模式的实现是否优雅？",
+            height=120,
+            label_visibility="collapsed",
+            key="db_code_input",
+        )
+    with col_btn:
+        st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
+        run_btn = st.button("🚀 开始辩论", use_container_width=True, type="primary", key="db_run")
+
+    rounds = st.slider("辩论轮次", min_value=1, max_value=3, value=2, key="db_rounds")
+
+    # 语言选择
+    language = st.selectbox(
+        "代码语言",
+        options=["python", "javascript", "java", "cpp", "go", "rust", "其他"],
+        index=0,
+        key="db_language"
+    )
+
+    st.divider()
+
+    # ── session state 初始化 ─────────────────────────────
+    for key, default in [
+        ("db_history", []),
+        ("db_conclusion", None),
+        ("db_model_used", {}),
+        ("db_is_running", False),
+    ]:
+        if key not in st.session_state:
+            st.session_state[key] = default
+
+    path_container = st.empty()
+
+    # ── 执行逻辑 ─────────────────────────────────────────
+    if run_btn and code_input.strip():
+        st.session_state.db_history = []
+        st.session_state.db_conclusion = None
+        st.session_state.db_model_used = {}
+        st.session_state.db_is_running = True
+
+        for node_name, state_update in stream_debate(code_input.strip(), language=language, max_rounds=rounds):
+            
+            # 更新模型信息
+            model_map = state_update.get("model_used_by", {})
+            st.session_state.db_model_used.update(model_map)
+
+            # 处理历史记录
+            if node_name in ["pro_agent", "con_agent"]:
+                history_items = state_update.get("debate_history", [])
+                st.session_state.db_history.extend(history_items)
+            
+            # 处理最终结论
+            if node_name == "judge_agent":
+                st.session_state.db_conclusion = state_update.get("final_conclusion", "")
+
+            # 动态渲染
+            with path_container.container():
+                for i, item in enumerate(st.session_state.db_history):
+                    role = item["role"]
+                    round_num = item["round"]
+                    content = item["content"]
+                    icon = AGENT_ICONS[role]
+                    name = f"{AGENT_NAMES[role]} (第{round_num}轮)"
+                    
+                    is_last = (i == len(st.session_state.db_history) - 1) and not st.session_state.db_conclusion
+                    with st.expander(f"{icon} {name}", expanded=is_last):
+                        model_name = st.session_state.db_model_used.get(role, "")
+                        if model_name:
+                            st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                        st.markdown(content)
+                
+                if st.session_state.db_conclusion:
+                    st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
+                    with st.expander(f"⚖️ 最终裁决", expanded=True):
+                        model_name = st.session_state.db_model_used.get("judge", "")
+                        if model_name:
+                            st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                        st.success(st.session_state.db_conclusion)
+                elif st.session_state.db_is_running:
+                    st.info("🤔 Agent 正在激烈博弈中...")
+
+        st.session_state.db_is_running = False
+        st.success("🎉 辩论结束！")
+
+    elif run_btn and not code_input.strip():
+        st.warning("⚠️ 请先输入代码再开始辩论。")
+
+    elif not st.session_state.db_is_running and st.session_state.db_history:
+        with path_container.container():
+            for i, item in enumerate(st.session_state.db_history):
+                role, round_num, content = item["role"], item["round"], item["content"]
+                with st.expander(f"{AGENT_ICONS[role]} {AGENT_NAMES[role]} (第{round_num}轮)", expanded=False):
+                    model_name = st.session_state.db_model_used.get(role, "")
+                    if model_name: st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                    st.markdown(content)
+            
+            if st.session_state.db_conclusion:
+                st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
+                with st.expander(f"⚖️ 最终裁决", expanded=True):
+                    model_name = st.session_state.db_model_used.get("judge", "")
+                    if model_name: st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                    st.success(st.session_state.db_conclusion)
+    else:
+        st.markdown('<div style="text-align:center;padding:60px 20px;color:#AAAAAA;">🗣️ 辩论模式已就绪</div>', unsafe_allow_html=True)
+
+
+def _render_nested_agent():
+    """Nested Agent 模式渲染函数 - 动态任务编排"""
+    from nested_agent import stream_nested
+
+    AGENT_ICONS = {"orchestrator": "🧠", "coder": "⚙️", "tester": "🧪", "documenter": "📜", "finalizer": "📦"}
+    AGENT_LABELS = {"orchestrator": "Orchestrator (规划)", "coder": "代码生成 Agent", "tester": "测试生成 Agent", "documenter": "文档生成 Agent", "finalizer": "Orchestrator (整合交付)"}
+
+    col_input, col_btn = st.columns([5, 1])
+    with col_input:
+        requirement = st.text_area(label="需求描述", placeholder="例如：写一个 Python 单例模式，包含单元测试...", height=100, label_visibility="collapsed", key="ns_requirement")
+    with col_btn:
+        st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
+        run_btn = st.button("🚀 开始执行", use_container_width=True, type="primary", key="ns_run")
+
+    st.divider()
+
+    for key, default in [("ns_plan", None), ("ns_reason", ""), ("ns_outputs", {}), ("ns_model_used", {}), ("ns_is_running", False)]:
+        if key not in st.session_state: st.session_state[key] = default
+
+    results_container = st.empty()
+
+    if run_btn and requirement.strip():
+        st.session_state.ns_plan = None; st.session_state.ns_reason = ""; st.session_state.ns_outputs = {}; st.session_state.ns_model_used = {}; st.session_state.ns_is_running = True
+        for node_name, state_update in stream_nested(requirement.strip()):
+            model_map = state_update.get("model_used_by", {})
+            st.session_state.ns_model_used.update(model_map)
+            if node_name == "orchestrator_agent":
+                st.session_state.ns_plan = state_update.get("plan"); st.session_state.ns_reason = state_update.get("plan_reason")
+            elif node_name == "coder_agent": st.session_state.ns_outputs["coder"] = state_update.get("coder_output")
+            elif node_name == "tester_agent": st.session_state.ns_outputs["tester"] = state_update.get("tester_output")
+            elif node_name == "documenter_agent": st.session_state.ns_outputs["documenter"] = state_update.get("documenter_output")
+            elif node_name == "finalizer_agent": st.session_state.ns_outputs["finalizer"] = state_update.get("final_output")
+
+            with results_container.container():
+                if st.session_state.ns_plan:
+                    with st.expander(f"🧠 Orchestrator 规划理由", expanded=True):
+                        st.info(st.session_state.ns_reason)
+                        cols = st.columns(3)
+                        for idx, (agent, needed) in enumerate(st.session_state.ns_plan.items()):
+                            cols[idx].markdown(f"**{'✅' if needed else '➖'} {agent.capitalize()}**")
+                for k in ["coder", "tester", "documenter"]:
+                    if st.session_state.ns_outputs.get(k):
+                        with st.expander(f"{AGENT_ICONS[k]} {AGENT_LABELS[k]}", expanded=False):
+                            model_name = st.session_state.ns_model_used.get(k, "")
+                            if model_name: st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                            st.code(st.session_state.ns_outputs[k])
+                if st.session_state.ns_outputs.get("finalizer"):
+                    with st.expander(f"📦 最终项目交付成果", expanded=True):
+                        model_name = st.session_state.ns_model_used.get("orchestrator", "")
+                        if model_name: st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                        st.markdown(st.session_state.ns_outputs["finalizer"])
+                    st.success("🎉 任务执行完毕！"); st.balloons()
+        st.session_state.ns_is_running = False
+    elif not st.session_state.ns_is_running and st.session_state.ns_plan:
+        with results_container.container():
+            for k in ["coder", "tester", "documenter"]:
+                if st.session_state.ns_outputs.get(k):
+                    with st.expander(f"{AGENT_ICONS[k]} {AGENT_LABELS[k]}", expanded=False): st.code(st.session_state.ns_outputs[k])
+            if st.session_state.ns_outputs.get("finalizer"):
+                with st.expander("📦 最终项目交付成果", expanded=True): st.markdown(st.session_state.ns_outputs["finalizer"])
+    else:
+        st.markdown('<div style="text-align:center;padding:60px 20px;color:#AAAAAA;">🪆 嵌套模式已就绪</div>', unsafe_allow_html=True)
+
+
 # ── 路由入口（函数定义后执行）───────────────────────────
 mode_key = current_mode["key"]
 if mode_key == "supervisor_pipeline":
@@ -951,5 +1133,9 @@ elif mode_key == "loop_feedback":
     _render_loop_feedback()
 elif mode_key == "parallel":
     _render_parallel_review()
+elif mode_key == "debate":
+    _render_debate()
+elif mode_key == "nested_agent":
+    _render_nested_agent()
 else:
     _render_coming_soon(selected_mode_label, current_mode["desc"])

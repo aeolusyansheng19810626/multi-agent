@@ -1,2 +1,4 @@
-# debate –Í® ? Œh?Šú‘Ò
+# Debate Mode - è¾©è®ºæ¨¡å¼æ¨¡å—
+from .graph import stream_debate
 
+__all__ = ["stream_debate"]

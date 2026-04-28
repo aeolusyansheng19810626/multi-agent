@@ -8,8 +8,10 @@
 - **Conditional Branch**（动态路由）：根据输入类型（新功能/代码审查/技术方案），动态激活对应的一组 Agent
 - **Loop Feedback**（迭代优化）：编码 Agent 生成代码后，质检 Agent 进行评审，不合格则打回重做（最多重试3次）
 - **Parallel Review**（并行审查）：用户输入代码，3个 Agent（安全/性能/可维护性）并行审查，最后由 Merge Agent 整合成统一报告
+- **Debate Mode**（对抗辩论）：支持方与反对方针对代码设计进行多轮博弈，最后由裁判 Agent 给出终极裁决
+- **Nested Agent**（任务拆解）：主 Agent 根据需求动态规划，按需召唤子 Agent 完成代码、测试或文档，实现树状任务分发
 - **模型自动降级**：依次尝试 6 个模型，成功即返回并在 UI 中标注实际使用的模型名
-- **多模式切换**：侧边栏一键切换编排模式，其余模式持续迭代中
+- **多模式切换**：侧边栏一键切换编排模式，界面实时动态刷新
 - **实时状态展示**：执行中动态更新 Agent 状态徽章，折叠面板展示各 Agent 输出
 
 ## 架构
@@ -117,8 +119,16 @@ multi-agent/
 │   │   ├── maintainability.py # 可维护性审查 Agent
 │   │   └── merger.py       # 合并 Agent
 │   └── prompts.py           # 所有 Prompt 模板
-├── debate/                   # 🚧 敬请期待
-├── nested_agent/             # 🚧 敬请期待
+├── debate/                   # ✅ Debate 对抗辩论模式
+│   ├── __init__.py
+│   ├── graph.py              # 实现多轮次对抗逻辑
+│   ├── agents/               # pro, con, judge
+│   └── prompts.py
+├── nested_agent/             # ✅ Nested Agent 嵌套拆解模式
+│   ├── __init__.py
+│   ├── graph.py              # 动态路由与子任务调度
+│   ├── agents/               # orchestrator, coder, tester 等
+│   └── prompts.py
 ├── requirements.txt
 ├── .env.example
 └── .env                      # 本地密钥（不提交）
@@ -182,8 +192,8 @@ streamlit run app.py
 | Conditional Branch | 条件动态路由 | ✅ 已上线 |
 | Loop Feedback | 迭代反馈收敛 | ✅ 已上线 |
 | Parallel | 多 Agent 并行汇总 | ✅ 已上线 |
-| Debate | 多 Agent 对抗辩论 | 🚧 开发中 |
-| Nested Agent | 嵌套子 Agent 调用 | 🚧 开发中 |
+| Debate | 多 Agent 对抗辩论 | ✅ 已上线 |
+| Nested Agent | 嵌套子 Agent 调用 | ✅ 已上线 |
 
 ## License
 
