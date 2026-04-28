@@ -7,19 +7,39 @@
 - **Supervisor Pipeline**（顺序流转）：Supervisor 统一调度，四个子 Agent 顺序流转，每个 Agent 的输出作为下一个的输入上下文
 - **Conditional Branch**（动态路由）：根据输入类型（新功能/代码审查/技术方案），动态激活对应的一组 Agent
 - **Loop Feedback**（迭代优化）：编码 Agent 生成代码后，质检 Agent 进行评审，不合格则打回重做（最多重试3次）
+- **Parallel Review**（并行审查）：用户输入代码，3个 Agent（安全/性能/可维护性）并行审查，最后由 Merge Agent 整合成统一报告
 - **模型自动降级**：依次尝试 6 个模型，成功即返回并在 UI 中标注实际使用的模型名
 - **多模式切换**：侧边栏一键切换编排模式，其余模式持续迭代中
 - **实时状态展示**：执行中动态更新 Agent 状态徽章，折叠面板展示各 Agent 输出
 
 ## 架构
 
+### 1. Supervisor Pipeline (顺序编排)
+
+```mermaid
+graph LR
+    Input[用户需求] --> Supervisor[Supervisor 调度]
+    Supervisor --> A[需求分析]
+    A --> B[架构设计]
+    B --> C[编码生成]
+    C --> D[代码审查]
+    D --> Output[最终成果]
 ```
-用户需求 → Supervisor (LangGraph StateGraph)
-              │
-              ├─ ① 需求分析 Agent   →  用户故事、功能列表、边界条件
-              ├─ ② 架构设计 Agent   →  技术选型、模块划分、数据流
-              ├─ ③ 编码 Agent       →  代码框架、类定义、函数签名
-              └─ ④ 代码审查 Agent   →  风险评估、改进建议、评分
+
+### 2. Parallel Review (并行编排)
+
+利用 LangGraph 的 `Send` API 实现动态并行分发，最后由聚合节点进行汇总。
+
+```mermaid
+graph TD
+    Start((开始)) --> Dispatcher[Dispatcher 路由]
+    Dispatcher -->|Send| Security[安全审查 Agent]
+    Dispatcher -->|Send| Performance[性能审查 Agent]
+    Dispatcher -->|Send| Maintainability[可维护性审查 Agent]
+    Security --> Merger[Merge Agent 汇总]
+    Performance --> Merger
+    Maintainability --> Merger
+    Merger --> End((结束))
 ```
 
 ## 技术栈
@@ -45,6 +65,18 @@ openai/gpt-oss-120b
 ```
 
 每个 Agent 的输出面板旁会显示实际命中的模型名。
+
+## 核心实现细节
+
+### 1. 统一 UI 与 降级渲染 (`app.py`)
+- **模型徽章**：UI 实时展示每个步骤最终命中的 LLM 模型（例如 `🧠 llama-3.3-70b-versatile`），增强编排透明度。
+- **状态流转**：使用 `st.session_state` 配合 `st.empty()` 占位符，实现 Agent 从 `pending` -> `running` -> `done` 的动态动画反馈。
+- **模式解耦**：每个编排模式通过独立的 `_render_xxx` 函数实现，逻辑与 UI 分离。
+
+### 2. 并行编排机制 (`parallel/`)
+- **动态分发**：使用 `Send` API 在路由阶段动态创建任务，支持真正的并发执行。
+- **状态合并 (Reducer)**：针对并行更新冲突（如 `model_used_by` 字典），在 `StateGraph` 中定义了 `Annotated` 与 `merge_dicts` 聚合函数，确保多路并发结果能安全合并。
+- **多维度审查**：预设了安全、性能、可维护性三个专业维度，通过专门的 System Prompts 驱动。
 
 ## 项目结构
 
@@ -76,7 +108,15 @@ multi-agent/
 │   ├── graph.py              # 含条件反馈循环的图定义
 │   ├── agents/               # coder, reviewer
 │   └── prompts.py
-├── parallel/                 # 🚧 敬请期待
+├── parallel/                 # ✅ Parallel 并行审查模式
+│   ├── __init__.py
+│   ├── graph.py              # 使用 Send API 实现 fan-out → fan-in
+│   ├── agents/
+│   │   ├── security.py       # 安全审查 Agent
+│   │   ├── performance.py   # 性能审查 Agent
+│   │   ├── maintainability.py # 可维护性审查 Agent
+│   │   └── merger.py       # 合并 Agent
+│   └── prompts.py           # 所有 Prompt 模板
 ├── debate/                   # 🚧 敬请期待
 ├── nested_agent/             # 🚧 敬请期待
 ├── requirements.txt
@@ -91,7 +131,7 @@ multi-agent/
 ```bash
 # Windows (PowerShell)
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.venv\Scripts\Activate.ps1
 
 # macOS / Linux
 python -m venv .venv
@@ -129,10 +169,10 @@ streamlit run app.py
 
 ## 使用方式
 
-1. 侧边栏选择编排模式（目前 **Supervisor Pipeline**, **Conditional Branch**, **Loop Feedback** 可用）
-2. 在主区域输入框中描述软件需求
+1. 侧边栏选择编排模式（目前 **Supervisor Pipeline**, **Conditional Branch**, **Loop Feedback**, **Parallel Review** 可用）
+2. 在主区域输入框中描述软件需求或粘贴代码
 3. 点击「🚀 开始执行」
-4. 四个折叠面板依次展示每个 Agent 的执行结果，顶部显示实际命中的模型名
+4. 折叠面板展示每个 Agent 的执行结果，顶部显示实际命中的模型名
 
 ## 编排模式路线图
 
@@ -141,7 +181,7 @@ streamlit run app.py
 | Supervisor Pipeline | 四个 Agent 顺序流转 | ✅ 已上线 |
 | Conditional Branch | 条件动态路由 | ✅ 已上线 |
 | Loop Feedback | 迭代反馈收敛 | ✅ 已上线 |
-| Parallel | 多 Agent 并行汇总 | 🚧 开发中 |
+| Parallel | 多 Agent 并行汇总 | ✅ 已上线 |
 | Debate | 多 Agent 对抗辩论 | 🚧 开发中 |
 | Nested Agent | 嵌套子 Agent 调用 | 🚧 开发中 |
 

@@ -33,7 +33,7 @@ MODES = {
     "⚡ Parallel": {
         "key": "parallel",
         "desc": "多个 Agent 并行执行，结果汇总合并",
-        "available": False,
+        "available": True,
     },
     "🗣️ Debate": {
         "key": "debate",
@@ -737,6 +737,210 @@ def _render_loop_feedback():
             )
 
 
+def _render_parallel_review():
+    """Parallel Review 模式渲染函数 - 并行代码审查"""
+    from parallel import stream_parallel
+
+    AGENT_ICONS = {
+        "dispatcher": "📡",
+        "security_agent": "🔒",
+        "performance_agent": "⚡",
+        "maintainability_agent": "🔧",
+        "merge_agent": "📋"
+    }
+    AGENT_NAMES = {
+        "dispatcher": "分发器",
+        "security_agent": "安全审查",
+        "performance_agent": "性能审查",
+        "maintainability_agent": "可维护性审查",
+        "merge_agent": "合并报告"
+    }
+
+    # ── 输入区 ────────────────────────────────────────────
+    col_input, col_btn = st.columns([5, 1])
+    with col_input:
+        code_input = st.text_area(
+            label="请输入需要审查的代码",
+            placeholder="例如：粘贴你的 Python/JavaScript 代码...",
+            height=120,
+            label_visibility="collapsed",
+            key="pr_code_input",
+        )
+    with col_btn:
+        st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
+        run_btn = st.button("🚀 开始执行", use_container_width=True, type="primary", key="pr_run")
+
+    # 语言选择
+    language = st.selectbox(
+        "代码语言",
+        options=["python", "javascript", "java", "cpp", "go", "rust", "其他"],
+        index=0,
+        key="pr_language"
+    )
+
+    st.divider()
+
+    # ── session state 初始化 ─────────────────────────────
+    for key, default in [
+        ("pr_results", {}),
+        ("pr_agent_status", {}),
+        ("pr_model_used", {}),
+        ("pr_is_running", False),
+        ("pr_issues", {}),
+    ]:
+        if key not in st.session_state:
+            st.session_state[key] = default
+
+    # ── 执行逻辑 ─────────────────────────────────────────
+    if run_btn and code_input.strip():
+        st.session_state.pr_results = {}
+        st.session_state.pr_agent_status = {
+            "security_agent": "pending",
+            "performance_agent": "pending",
+            "maintainability_agent": "pending",
+            "merge_agent": "pending",
+        }
+        st.session_state.pr_model_used = {}
+        st.session_state.pr_issues = {}
+        st.session_state.pr_is_running = True
+
+        # 创建状态显示区域
+        status_cols = st.columns(4)
+        status_placeholders = {}
+        for i, agent_key in enumerate(["security_agent", "performance_agent", "maintainability_agent", "merge_agent"]):
+            with status_cols[i]:
+                status_placeholders[agent_key] = st.empty()
+                status_placeholders[agent_key].markdown(
+                    f'<span class="agent-status status-pending">{AGENT_ICONS[agent_key]} {AGENT_NAMES[agent_key]} 待执行</span>',
+                    unsafe_allow_html=True
+                )
+
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+
+        # 创建结果 expander
+        expanders = {}
+        for agent_key in ["security_agent", "performance_agent", "maintainability_agent"]:
+            label = f"{AGENT_ICONS[agent_key]} {AGENT_NAMES[agent_key]}"
+            expanders[agent_key] = st.expander(label, expanded=True)
+
+        # merge expander
+        expanders["merge_agent"] = st.expander(f"📋 {AGENT_NAMES['merge_agent']}", expanded=False)
+
+        # 流式执行
+        for node_name, state_update in stream_parallel(code_input.strip(), language):
+            # 更新状态
+            if node_name in st.session_state.pr_agent_status:
+                st.session_state.pr_agent_status[node_name] = "done"
+                status_placeholders[node_name].markdown(
+                    f'<span class="agent-status status-done">{AGENT_ICONS[node_name]} {AGENT_NAMES[node_name]} ✓</span>',
+                    unsafe_allow_html=True
+                )
+
+            # 获取模型信息
+            model_map = state_update.get("model_used_by", {})
+            if node_name in model_map:
+                st.session_state.pr_model_used[node_name] = model_map[node_name]
+
+            # 处理各节点结果
+            if node_name == "security_agent":
+                result = state_update.get("security_result", "")
+                issues = state_update.get("security_issues", [])
+                st.session_state.pr_results["security"] = result
+                st.session_state.pr_issues["security"] = issues
+                with expanders["security_agent"]:
+                    badge = f'<span class="model-badge">🧠 {model_map.get("security", "unknown")}</span>'
+                    st.markdown(badge, unsafe_allow_html=True)
+                    st.markdown(f"**完成（{len(issues)}个问题）**")
+                    st.markdown(result)
+
+            elif node_name == "performance_agent":
+                result = state_update.get("performance_result", "")
+                issues = state_update.get("performance_issues", [])
+                st.session_state.pr_results["performance"] = result
+                st.session_state.pr_issues["performance"] = issues
+                with expanders["performance_agent"]:
+                    badge = f'<span class="model-badge">🧠 {model_map.get("performance", "unknown")}</span>'
+                    st.markdown(badge, unsafe_allow_html=True)
+                    st.markdown(f"**完成（{len(issues)}个问题）**")
+                    st.markdown(result)
+
+            elif node_name == "maintainability_agent":
+                result = state_update.get("maintainability_result", "")
+                issues = state_update.get("maintainability_issues", [])
+                st.session_state.pr_results["maintainability"] = result
+                st.session_state.pr_issues["maintainability"] = issues
+                with expanders["maintainability_agent"]:
+                    badge = f'<span class="model-badge">🧠 {model_map.get("maintainability", "unknown")}</span>'
+                    st.markdown(badge, unsafe_allow_html=True)
+                    st.markdown(f"**完成（{len(issues)}个问题）**")
+                    st.markdown(result)
+
+            elif node_name == "merge_agent":
+                result = state_update.get("merged_report", "")
+                st.session_state.pr_results["merged"] = result
+                with expanders["merge_agent"]:
+                    badge = f'<span class="model-badge">🧠 {model_map.get("merger", "unknown")}</span>'
+                    st.markdown(badge, unsafe_allow_html=True)
+                    st.markdown(result)
+
+        st.session_state.pr_is_running = False
+        st.markdown("---")
+        st.success("🎉 并行审查完成！")
+
+    elif run_btn and not code_input.strip():
+        st.warning("⚠️ 请先输入代码再执行。")
+
+    elif not st.session_state.pr_is_running and st.session_state.pr_results:
+        # 显示历史结果
+        status_cols = st.columns(4)
+        for i, agent_key in enumerate(["security_agent", "performance_agent", "maintainability_agent", "merge_agent"]):
+            with status_cols[i]:
+                if agent_key in st.session_state.pr_agent_status:
+                    st.markdown(
+                        f'<span class="agent-status status-done">{AGENT_ICONS[agent_key]} {AGENT_NAMES[agent_key]} ✓</span>',
+                        unsafe_allow_html=True
+                    )
+
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+
+        for agent_key in ["security_agent", "performance_agent", "maintainability_agent"]:
+            label = f"{AGENT_ICONS[agent_key]} {AGENT_NAMES[agent_key]}"
+            with st.expander(label, expanded=False):
+                content = st.session_state.pr_results.get(agent_key.replace("_agent", ""), "")
+                model_name = st.session_state.pr_model_used.get(agent_key, "")
+                issues = st.session_state.pr_issues.get(agent_key.replace("_agent", ""), [])
+                if content:
+                    if model_name:
+                        st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                    st.markdown(f"**完成（{len(issues)}个问题）**")
+                    st.markdown(content)
+
+        with st.expander(f"📋 {AGENT_NAMES['merge_agent']}", expanded=True):
+            content = st.session_state.pr_results.get("merged", "")
+            model_name = st.session_state.pr_model_used.get("merge_agent", "")
+            if content:
+                if model_name:
+                    st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                st.markdown(content)
+
+    else:
+        st.markdown(
+            """
+            <div style="text-align:center;padding:60px 20px;color:#AAAAAA;">
+                <div style="font-size:40px;margin-bottom:16px;">⚡</div>
+                <div style="font-size:16px;font-weight:500;color:#888888;margin-bottom:8px;">并行审查模式已就绪</div>
+                <div style="font-size:13px;line-height:1.8;">
+                    输入代码，3个 Agent 并行审查<br>
+                    <span style="color:#ef4444">安全审查</span> |
+                    <span style="color:#f59e0b">性能审查</span> |
+                    <span style="color:#10b981">可维护性审查</span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
 # ── 路由入口（函数定义后执行）───────────────────────────
 mode_key = current_mode["key"]
 if mode_key == "supervisor_pipeline":
@@ -745,5 +949,7 @@ elif mode_key == "conditional_branch":
     _render_conditional_branch()
 elif mode_key == "loop_feedback":
     _render_loop_feedback()
+elif mode_key == "parallel":
+    _render_parallel_review()
 else:
     _render_coming_soon(selected_mode_label, current_mode["desc"])
