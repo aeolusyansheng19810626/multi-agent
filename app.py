@@ -45,6 +45,11 @@ MODES = {
         "desc": "Agent 内部动态召唤子 Agent，形成嵌套调用",
         "available": True,
     },
+    "🔱 Hybrid A": {
+        "key": "hybrid_a",
+        "desc": "并行生成 + 循环质检 + 条件分支，全自动代码交付",
+        "available": True,
+    },
 }
 
 # ── 自定义样式（亮色主题）────────────────────────────────
@@ -1123,6 +1128,273 @@ def _render_nested_agent():
         st.markdown('<div style="text-align:center;padding:60px 20px;color:#AAAAAA;">🪆 嵌套模式已就绪</div>', unsafe_allow_html=True)
 
 
+def _render_hybrid_a():
+    """Hybrid A 混合模式：并行生成 + 循环质检 + 条件分支"""
+    from hybrid_a import stream_hybrid_a
+
+    # ── 输入区 ────────────────────────────────────────────
+    col_input, col_btn = st.columns([5, 1])
+    with col_input:
+        requirement = st.text_area(
+            label="请描述你需要交付的代码功能",
+            placeholder="例如：实现一个带缓存的斐波那契函数，包含类型注解和异常处理",
+            height=120,
+            label_visibility="collapsed",
+            key="ha_requirement",
+        )
+    with col_btn:
+        st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
+        run_btn = st.button("🚀 开始执行", use_container_width=True, type="primary", key="ha_run")
+
+    st.divider()
+
+    # ── session state 初始化 ─────────────────────────────
+    for key, default in [
+        ("ha_phase1", {"ha_coder": "pending", "ha_tester": "pending", "ha_documenter": "pending"}),
+        ("ha_loop_history", []),
+        ("ha_outputs", {}),
+        ("ha_complexity", None),
+        ("ha_complexity_model", ""),
+        ("ha_security_result", None),
+        ("ha_security_model", ""),
+        ("ha_final_output", None),
+        ("ha_final_model", ""),
+        ("ha_model_used", {}),
+        ("ha_is_running", False),
+    ]:
+        if key not in st.session_state:
+            st.session_state[key] = default
+
+    path_container = st.empty()
+
+    # ── 状态渲染函数（每次事件后重绘）──────────────────────
+    def _phase1_badge(node: str) -> str:
+        icons = {"ha_coder": "💻", "ha_tester": "🧪", "ha_documenter": "📜"}
+        labels = {"ha_coder": "代码生成", "ha_tester": "测试生成", "ha_documenter": "文档生成"}
+        s = st.session_state.ha_phase1.get(node, "pending")
+        icon, label = icons[node], labels[node]
+        if s == "running":
+            return f'<span class="agent-status status-running">{icon} {label}中…</span>'
+        if s == "done":
+            return f'<span class="agent-status status-done">{icon} {label} ✓</span>'
+        return f'<span class="agent-status status-pending">{icon} {label} 待执行</span>'
+
+    def _render_current_state():
+        with path_container.container():
+            # ── 阶段一：并行生成 ──────────────────────────
+            st.markdown("#### 🔵 阶段一：并行生成")
+            p1_cols = st.columns(3)
+            for i, node in enumerate(["ha_coder", "ha_tester", "ha_documenter"]):
+                with p1_cols[i]:
+                    st.markdown(_phase1_badge(node), unsafe_allow_html=True)
+
+            # 折叠展示并行产物
+            outputs = st.session_state.ha_outputs
+            if outputs.get("code") is not None:
+                model = st.session_state.ha_model_used.get("lf_coder", "")
+                iteration = len(st.session_state.ha_loop_history)
+                code_label = f"💻 生成代码（第 {iteration} 轮）" if iteration > 1 else "💻 生成代码"
+                with st.expander(code_label, expanded=False):
+                    if model:
+                        st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
+                    st.markdown(outputs["code"])
+            if "tests" in outputs:
+                model = st.session_state.ha_model_used.get("tester", "")
+                with st.expander("🧪 单元测试", expanded=False):
+                    if model:
+                        st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
+                    st.code(outputs["tests"])
+            if "docs" in outputs:
+                model = st.session_state.ha_model_used.get("documenter", "")
+                with st.expander("📜 技术文档", expanded=False):
+                    if model:
+                        st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
+                    st.markdown(outputs["docs"])
+
+            # ── 阶段二：循环质检 ──────────────────────────
+            if st.session_state.ha_loop_history:
+                st.markdown("---")
+                st.markdown("#### 🔵 阶段二：循环质检")
+                for entry in st.session_state.ha_loop_history:
+                    iter_num = entry["iteration"]
+                    st.markdown(f"**第 {iter_num} 轮**")
+
+                    is_last = entry is st.session_state.ha_loop_history[-1]
+
+                    # Coder 结果
+                    with st.expander(f"💻 代码生成（第{iter_num}轮）",
+                                     expanded=(is_last and entry["status"] is None)):
+                        if entry["coder_model"]:
+                            st.markdown(f'<span class="model-badge">🧠 {entry["coder_model"]}</span>',
+                                        unsafe_allow_html=True)
+                        st.markdown(entry["code"])
+
+                    # Reviewer 结果（如果已有）
+                    if entry["status"] is not None:
+                        passed = entry["status"] == "pass"
+                        label = "🔍 质检 ✅ 通过" if passed else "🔍 质检 ❌ 不通过"
+                        with st.expander(label, expanded=is_last):
+                            if entry["reviewer_model"]:
+                                st.markdown(f'<span class="model-badge">🧠 {entry["reviewer_model"]}</span>',
+                                            unsafe_allow_html=True)
+                            if passed:
+                                st.success(entry["feedback"] or "代码质量通过！")
+                            else:
+                                st.error(f"质检未通过，打回重做。\n\n**反馈：**\n{entry['feedback']}")
+                    else:
+                        with st.expander("🔍 质检中…", expanded=True):
+                            st.markdown("_🔄 审查中…_")
+
+                    st.markdown(
+                        "<hr style='margin:0.6em 0;border:none;border-top:1px dashed #DCDCDC;'/>",
+                        unsafe_allow_html=True,
+                    )
+
+                # 超限提示
+                if (len(st.session_state.ha_loop_history) >= 3
+                        and st.session_state.ha_loop_history[-1].get("status") == "fail"):
+                    st.warning("⚠️ 已达最大迭代次数（3轮），强制进入下一阶段。")
+
+            # ── 阶段三：条件分支 ──────────────────────────
+            if st.session_state.ha_complexity:
+                st.markdown("---")
+                st.markdown("#### 🔵 阶段三：条件分支")
+                complexity = st.session_state.ha_complexity
+                branch_color = "#ef4444" if complexity == "complex" else "#10b981"
+                branch_label = "复杂（complex）→ 进行安全审查" if complexity == "complex" else "简单（simple）→ 直接交付，跳过安全审查"
+
+                st.markdown(
+                    f'<div style="display:inline-flex;align-items:center;gap:10px;padding:10px 18px;'
+                    f'border-radius:12px;background:{branch_color}18;border:1px solid {branch_color}40;margin-bottom:12px;">'
+                    f'<span style="font-size:18px;">{"🔴" if complexity == "complex" else "🟢"}</span>'
+                    f'<span style="font-weight:600;color:{branch_color};">{branch_label}</span></div>',
+                    unsafe_allow_html=True,
+                )
+                if complexity == "complex":
+                    if st.session_state.ha_security_result:
+                        smodel = st.session_state.ha_security_model
+                        with st.expander("🔒 安全审查报告", expanded=True):
+                            if smodel:
+                                st.markdown(f'<span class="model-badge">🧠 {smodel}</span>',
+                                            unsafe_allow_html=True)
+                            st.markdown(st.session_state.ha_security_result)
+                    else:
+                        st.info("🔒 安全审查进行中…")
+
+            # ── 最终交付物 ────────────────────────────────
+            if st.session_state.ha_final_output:
+                st.markdown("---")
+                st.markdown("#### 📦 最终交付物")
+                fmodel = st.session_state.ha_final_model
+                with st.expander("📋 项目交付报告", expanded=True):
+                    if fmodel:
+                        st.markdown(f'<span class="model-badge">🧠 {fmodel}</span>',
+                                    unsafe_allow_html=True)
+                    st.markdown(st.session_state.ha_final_output)
+
+    # ── 执行逻辑 ─────────────────────────────────────────
+    if run_btn and requirement.strip():
+        # 重置所有状态
+        st.session_state.ha_phase1 = {"ha_coder": "running", "ha_tester": "pending", "ha_documenter": "pending"}
+        st.session_state.ha_loop_history = []
+        st.session_state.ha_outputs = {}
+        st.session_state.ha_complexity = None
+        st.session_state.ha_complexity_model = ""
+        st.session_state.ha_security_result = None
+        st.session_state.ha_security_model = ""
+        st.session_state.ha_final_output = None
+        st.session_state.ha_final_model = ""
+        st.session_state.ha_model_used = {}
+        st.session_state.ha_is_running = True
+
+        for node_name, state_update in stream_hybrid_a(requirement.strip()):
+            if state_update is None:
+                continue
+            model_map = state_update.get("model_used_by", {})
+            st.session_state.ha_model_used.update(model_map)
+
+            if node_name == "ha_coder":
+                iteration = state_update.get("iteration", 1)
+                code = state_update.get("code_result", "")
+                st.session_state.ha_outputs["code"] = code
+                st.session_state.ha_phase1["ha_coder"] = "done"
+                if iteration == 1:
+                    # 第一轮结束，并行测试/文档开始
+                    st.session_state.ha_phase1["ha_tester"] = "running"
+                    st.session_state.ha_phase1["ha_documenter"] = "running"
+                st.session_state.ha_loop_history.append({
+                    "iteration": iteration,
+                    "code": code,
+                    "coder_model": model_map.get("lf_coder", ""),
+                    "status": None,
+                    "feedback": None,
+                    "reviewer_model": None,
+                })
+
+            elif node_name == "dispatcher":
+                pass  # 透传节点，无需处理
+
+            elif node_name == "ha_tester":
+                st.session_state.ha_outputs["tests"] = state_update.get("tester_output", "")
+                st.session_state.ha_phase1["ha_tester"] = "done"
+
+            elif node_name == "ha_documenter":
+                st.session_state.ha_outputs["docs"] = state_update.get("documenter_output", "")
+                st.session_state.ha_phase1["ha_documenter"] = "done"
+
+            elif node_name == "ha_reviewer":
+                status = state_update.get("status", "fail")
+                feedback = state_update.get("feedback", "")
+                if st.session_state.ha_loop_history:
+                    last = st.session_state.ha_loop_history[-1]
+                    last["status"] = status
+                    last["feedback"] = feedback
+                    last["reviewer_model"] = model_map.get("lf_reviewer", "")
+
+            elif node_name == "ha_complexity":
+                st.session_state.ha_complexity = state_update.get("complexity", "simple")
+                st.session_state.ha_complexity_model = model_map.get("complexity", "")
+
+            elif node_name == "ha_security":
+                st.session_state.ha_security_result = state_update.get("security_result", "")
+                st.session_state.ha_security_model = model_map.get("security", "")
+
+            elif node_name == "ha_finalizer":
+                st.session_state.ha_final_output = state_update.get("final_output", "")
+                st.session_state.ha_final_model = model_map.get("finalizer", "")
+
+            _render_current_state()
+
+        st.session_state.ha_is_running = False
+        st.markdown("---")
+        st.success("🎉 全自动代码交付完成！")
+
+    elif run_btn and not requirement.strip():
+        st.warning("⚠️ 请先输入需求再执行。")
+
+    elif not st.session_state.ha_is_running and st.session_state.ha_final_output:
+        _render_current_state()
+
+    else:
+        with path_container.container():
+            st.markdown(
+                """
+                <div style="text-align:center;padding:60px 20px;color:#AAAAAA;">
+                    <div style="font-size:40px;margin-bottom:16px;">🔱</div>
+                    <div style="font-size:16px;font-weight:500;color:#888888;margin-bottom:8px;">混合模式 A 已就绪</div>
+                    <div style="font-size:13px;line-height:2.2;">
+                        输入代码需求，自动触发三阶段流水线<br>
+                        <span style="color:#6366f1">⚡ 并行生成</span>（代码 + 测试 + 文档）
+                        → <span style="color:#7c3aed">🔄 循环质检</span>（最多3轮）
+                        → <span style="color:#0ea5e9">🔀 条件分支</span>（安全审查）
+                        → <span style="color:#10b981">📦 最终交付</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+
 # ── 路由入口（函数定义后执行）───────────────────────────
 mode_key = current_mode["key"]
 if mode_key == "supervisor_pipeline":
@@ -1137,5 +1409,7 @@ elif mode_key == "debate":
     _render_debate()
 elif mode_key == "nested_agent":
     _render_nested_agent()
+elif mode_key == "hybrid_a":
+    _render_hybrid_a()
 else:
     _render_coming_soon(selected_mode_label, current_mode["desc"])

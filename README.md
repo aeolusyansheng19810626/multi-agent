@@ -10,6 +10,7 @@
 - **Parallel Review**（并行审查）：用户输入代码，3个 Agent（安全/性能/可维护性）并行审查，最后由 Merge Agent 整合成统一报告
 - **Debate Mode**（对抗辩论）：支持方与反对方针对代码设计进行多轮博弈，最后由裁判 Agent 给出终极裁决
 - **Nested Agent**（任务拆解）：主 Agent 根据需求动态规划，按需召唤子 Agent 完成代码、测试或文档，实现树状任务分发
+- **Hybrid A**（三阶段混合流水线）：并行生成（代码 + 测试 + 文档）→ 循环质检（最多3轮）→ 条件分支（复杂代码进行安全审查），复用已有模式的 Agent，组合为全自动交付链路
 - **模型自动降级**：依次尝试 6 个模型，成功即返回并在 UI 中标注实际使用的模型名
 - **多模式切换**：侧边栏一键切换编排模式，界面实时动态刷新
 - **实时状态展示**：执行中动态更新 Agent 状态徽章，折叠面板展示各 Agent 输出
@@ -42,6 +43,26 @@ graph TD
     Performance --> Merger
     Maintainability --> Merger
     Merger --> End((结束))
+```
+
+### 3. Hybrid A (三阶段混合流水线)
+
+复用已有模式的 Agent，将并行、循环、条件分支三种编排模式组合为一条全自动交付链路。
+
+```mermaid
+graph TD
+    Req[用户需求] --> Coder[代码生成 Coder]
+    Coder -->|第1轮| Dispatcher[Dispatcher]
+    Dispatcher -->|Send| Tester[测试生成 Tester]
+    Dispatcher -->|Send| Documenter[文档生成 Documenter]
+    Tester --> Reviewer[质检 Reviewer]
+    Documenter --> Reviewer
+    Reviewer -->|不通过 & 轮次<3| Coder
+    Reviewer -->|通过 或 达到上限| Complexity[复杂度判断]
+    Complexity -->|complex| Security[安全审查 Security]
+    Complexity -->|simple| Finalizer[最终交付 Finalizer]
+    Security --> Finalizer
+    Finalizer --> End((交付完成))
 ```
 
 ## 技术栈
@@ -129,6 +150,13 @@ multi-agent/
 │   ├── graph.py              # 动态路由与子任务调度
 │   ├── agents/               # orchestrator, coder, tester 等
 │   └── prompts.py
+├── hybrid_a/                 # ✅ Hybrid A 三阶段混合流水线
+│   ├── __init__.py
+│   ├── graph.py              # 并行→循环→条件分支 三阶段图定义
+│   ├── agents/
+│   │   ├── complexity.py     # 复杂度判断 Agent（新）
+│   │   └── finalizer.py      # 最终交付整合 Agent（新）
+│   └── prompts.py            # complexity + finalizer Prompt 模板
 ├── requirements.txt
 ├── .env.example
 └── .env                      # 本地密钥（不提交）
@@ -179,7 +207,7 @@ streamlit run app.py
 
 ## 使用方式
 
-1. 侧边栏选择编排模式（目前 **Supervisor Pipeline**, **Conditional Branch**, **Loop Feedback**, **Parallel Review** 可用）
+1. 侧边栏选择编排模式（目前 **Supervisor Pipeline**, **Conditional Branch**, **Loop Feedback**, **Parallel Review**, **Debate**, **Nested Agent**, **Hybrid A** 均可用）
 2. 在主区域输入框中描述软件需求或粘贴代码
 3. 点击「🚀 开始执行」
 4. 折叠面板展示每个 Agent 的执行结果，顶部显示实际命中的模型名
@@ -194,6 +222,7 @@ streamlit run app.py
 | Parallel | 多 Agent 并行汇总 | ✅ 已上线 |
 | Debate | 多 Agent 对抗辩论 | ✅ 已上线 |
 | Nested Agent | 嵌套子 Agent 调用 | ✅ 已上线 |
+| Hybrid A | 并行 + 循环质检 + 条件分支混合流水线 | ✅ 已上线 |
 
 ## License
 
