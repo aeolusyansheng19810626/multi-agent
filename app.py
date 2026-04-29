@@ -527,6 +527,8 @@ AGENT_NAMES = {
     "pro": "支持方",
     "con": "反对方",
     "judge": "裁判",
+    "analyst": "需求分析",
+    "reviewer": "代码审查",
     "orchestrator": "协调者",
     "lf_coder": "程序员",
     "lf_reviewer": "审查员",
@@ -574,8 +576,9 @@ def _render_supervisor_pipeline():
     """Supervisor Pipeline 模式渲染函数"""
     from supervisor_pipeline import stream_supervisor
 
-    AGENT_ORDER = ["requirement", "architect", "coder", "tester", "documenter"]
-    AGENT_ICONS_LOCAL = {"requirement": "📋", "architect": "🏗️", "coder": "💻", "tester": "🧪", "documenter": "📝"}
+    AGENT_ORDER = ["analyst", "architect", "coder", "reviewer"]
+    AGENT_ICONS_LOCAL = {"analyst": "📋", "architect": "🏗️", "coder": "💻", "reviewer": "🔍"}
+    RESULT_KEYS = {"analyst": "analysis_result", "architect": "architecture_result", "coder": "code_result", "reviewer": "review_result"}
 
     st.markdown("#### 🔄 顺序流水线")
     col_input, col_btn = st.columns([5, 1])
@@ -589,58 +592,60 @@ def _render_supervisor_pipeline():
 
     if "sp_agent_status" not in st.session_state:
         st.session_state.sp_agent_status = {k: "pending" for k in AGENT_ORDER}
-    if "sp_final" not in st.session_state:
-        st.session_state.sp_final = None
+    if "sp_results" not in st.session_state:
+        st.session_state.sp_results = {}
+    if "sp_model_used" not in st.session_state:
+        st.session_state.sp_model_used = {}
     if "sp_is_running" not in st.session_state:
         st.session_state.sp_is_running = False
 
     path_container = st.empty()
 
+    def _render_sp_state():
+        with path_container.container():
+            status_cols = st.columns(4)
+            for i, agent_key in enumerate(AGENT_ORDER):
+                with status_cols[i]:
+                    icon = AGENT_ICONS_LOCAL[agent_key]
+                    name = AGENT_NAMES[agent_key]
+                    badge = _status_badge(st.session_state.sp_agent_status[agent_key])
+                    st.markdown(
+                        f"""
+                        <div class="agent-status-card">
+                            <div style='font-size:32px;margin-bottom:8px'>{icon}</div>
+                            <div style='font-size:13px;font-weight:600;color:#1F2937;margin-bottom:8px'>{name}</div>
+                            <div style='font-size:11px'>{badge}</div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+            for agent_key in AGENT_ORDER:
+                result = st.session_state.sp_results.get(agent_key, "")
+                with st.expander(f"{AGENT_ICONS_LOCAL[agent_key]} {AGENT_NAMES[agent_key]}", expanded=False):
+                    model_name = st.session_state.sp_model_used.get(agent_key, "")
+                    if model_name:
+                        st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                    if result:
+                        st.markdown(result)
+
     if run_btn and req_input.strip():
         st.session_state.sp_agent_status = {k: "pending" for k in AGENT_ORDER}
-        st.session_state.sp_final = None
+        st.session_state.sp_results = {}
+        st.session_state.sp_model_used = {}
         st.session_state.sp_is_running = True
 
         for node_name, state_update in stream_supervisor(req_input.strip()):
+            st.session_state.sp_model_used.update(state_update.get("model_used_by", {}))
             if node_name in st.session_state.sp_agent_status:
+                result_key = RESULT_KEYS[node_name]
+                st.session_state.sp_results[node_name] = state_update.get(result_key, "")
                 st.session_state.sp_agent_status[node_name] = "done"
                 next_idx = AGENT_ORDER.index(node_name) + 1
                 if next_idx < len(AGENT_ORDER):
                     st.session_state.sp_agent_status[AGENT_ORDER[next_idx]] = "running"
 
-            with path_container.container():
-                status_cols = st.columns(5)
-                for i, agent_key in enumerate(AGENT_ORDER):
-                    with status_cols[i]:
-                        icon = AGENT_ICONS_LOCAL[agent_key]
-                        name = AGENT_NAMES[agent_key]
-                        badge = _status_badge(st.session_state.sp_agent_status[agent_key])
-                        st.markdown(
-                            f"""
-                            <div class="agent-status-card">
-                                <div style='font-size:32px;margin-bottom:8px'>{icon}</div>
-                                <div style='font-size:13px;font-weight:600;color:#1F2937;margin-bottom:8px'>{name}</div>
-                                <div style='font-size:11px'>{badge}</div>
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
-
-                expanders = {}
-                for agent_key in AGENT_ORDER:
-                    expanders[agent_key] = st.expander(f"{AGENT_ICONS_LOCAL[agent_key]} {AGENT_NAMES[agent_key]}", expanded=False)
-
-                if node_name in expanders:
-                    with expanders[node_name]:
-                        result = state_update.get(f"{node_name}_result", "")
-                        if result:
-                            st.markdown(result)
-
-                if node_name == "documenter":
-                    st.session_state.sp_final = state_update.get("final_report", "")
-                    if st.session_state.sp_final:
-                        with st.expander("📦 最终项目交付成果", expanded=True):
-                            st.success(st.session_state.sp_final)
+            _render_sp_state()
 
         st.session_state.sp_is_running = False
         st.success("🎉 顺序流水线执行完成！")
@@ -648,36 +653,14 @@ def _render_supervisor_pipeline():
     elif run_btn and not req_input.strip():
         st.warning("⚠️ 请先输入需求描述再开始执行。")
 
-    elif not st.session_state.sp_is_running and st.session_state.sp_final:
-        with path_container.container():
-            status_cols = st.columns(5)
-            for i, agent_key in enumerate(AGENT_ORDER):
-                with status_cols[i]:
-                    icon = AGENT_ICONS_LOCAL[agent_key]
-                    name = AGENT_NAMES[agent_key]
-                    st.markdown(
-                        f"""
-                        <div class="agent-status-card">
-                            <div style='font-size:32px;margin-bottom:8px'>{icon}</div>
-                            <div style='font-size:13px;font-weight:600;color:#1F2937;margin-bottom:8px'>{name}</div>
-                            <div style='font-size:11px'>{_status_badge('done')}</div>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-            for agent_key in AGENT_ORDER:
-                with st.expander(f"{AGENT_ICONS_LOCAL[agent_key]} {AGENT_NAMES[agent_key]}", expanded=False):
-                    st.caption(f"Agent {agent_key} 的输出（静态展示）")
-
-            with st.expander("📦 最终项目交付成果", expanded=True):
-                st.success(st.session_state.sp_final)
+    elif not st.session_state.sp_is_running and st.session_state.sp_results:
+        _render_sp_state()
     else:
         st.markdown(
             """
             <div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
                 监督者流水线模式：顺序执行，每个 Agent 处理前一个的输出<br>
-                <span style="color:#6C63FF;font-weight:500;">📋 需求分析 → 🏗️ 架构师 → 💻 程序员 → 🧪 测试员 → 📝 文档员</span>
+                <span style="color:#6C63FF;font-weight:500;">📋 需求分析 → 🏗️ 架构师 → 💻 程序员 → 🔍 代码审查</span>
             </div>
             """,
             unsafe_allow_html=True,
@@ -686,152 +669,277 @@ def _render_supervisor_pipeline():
 
 # ── Conditional Branch 模式 ─────────────────────────────
 def _render_conditional_branch():
-    """Conditional Branch 模式渲染函数"""
     from conditional_branch import stream_conditional
 
-    NODE_LIST = ["input", "analyzer", "security_path", "performance_path", "maintainability_path", "merge"]
-    NODE_ICONS = {"input": "📥", "analyzer": "🔍", "security_path": "🔒", "performance_path": "⚡", "maintainability_path": "🔧", "merge": "📊"}
+    AGENT_ICONS = {
+        "router": "🧭", "cb_analyst": "📋", "cb_architect": "🏗️", "cb_coder": "💻",
+        "cb_reviewer": "🔍", "cb_optimizer": "✨",
+        "cb_researcher": "🕵️", "cb_advisor": "💡"
+    }
+    AGENT_NAMES_LOCAL = {
+        "router": "路由分配", "cb_analyst": "需求分析", "cb_architect": "架构设计", "cb_coder": "编码生成",
+        "cb_reviewer": "代码审查", "cb_optimizer": "代码优化",
+        "cb_researcher": "技术调研", "cb_advisor": "技术顾问"
+    }
+    RESULT_KEYS = {
+        "router": "router_decision", "cb_analyst": "analysis_result", "cb_architect": "architecture_result", "cb_coder": "code_result",
+        "cb_reviewer": "review_result", "cb_optimizer": "optimization_result",
+        "cb_researcher": "research_result", "cb_advisor": "advice_result"
+    }
 
-    st.markdown("#### 🔀 条件分支")
     col_input, col_btn = st.columns([5, 1])
     with col_input:
-        code_input = st.text_area("输入代码", height=120, placeholder="例如：def login(user, pwd): return True...", label_visibility="collapsed", key="cb_code")
+        requirement = st.text_area(
+            label="请描述你的需求、代码或技术问题",
+            placeholder="例如：\n[新功能] 我想加一个微信支付模块...\n[代码审查] 帮我看看这段 React 代码有没有坑...\n[技术问题] Next.js 和 Nuxt.js 选哪个好？",
+            height=120,
+            label_visibility="collapsed",
+            key="cb_requirement",
+        )
     with col_btn:
         st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-        run_btn = st.button("🚀 开始分析", use_container_width=True, type="primary", key="cb_run")
+        run_btn = st.button("🚀 开始执行", use_container_width=True, type="primary", key="cb_run")
 
     st.divider()
 
-    if "cb_agent_status" not in st.session_state:
-        st.session_state.cb_agent_status = {k: "pending" for k in NODE_LIST}
-    if "cb_is_running" not in st.session_state:
-        st.session_state.cb_is_running = False
+    for key, default in [
+        ("cb_results", {}),
+        ("cb_agent_status", {}),
+        ("cb_model_used", {}),
+        ("cb_is_running", False),
+        ("cb_active_path", []),
+        ("cb_router_reason", "")
+    ]:
+        if key not in st.session_state:
+            st.session_state[key] = default
 
     path_container = st.empty()
 
-    if run_btn and code_input.strip():
-        st.session_state.cb_agent_status = {k: "pending" for k in NODE_LIST}
+    if run_btn and requirement.strip():
+        st.session_state.cb_results = {}
+        st.session_state.cb_agent_status = {"router": "running"}
+        st.session_state.cb_model_used = {}
         st.session_state.cb_is_running = True
+        st.session_state.cb_active_path = []
+        st.session_state.cb_router_reason = "🤔 正在分析需求类型..."
 
-        active_path = []
+        for node_name, state_update in stream_conditional(requirement.strip()):
+            st.session_state.cb_agent_status[node_name] = "done"
+            result_key = RESULT_KEYS.get(node_name, "")
 
-        for node_name, state_update in stream_conditional(code_input.strip(), "python"):
-            if node_name in st.session_state.cb_agent_status:
-                st.session_state.cb_agent_status[node_name] = "done"
-                if node_name not in active_path:
-                    active_path.append(node_name)
+            model_map = state_update.get("model_used_by", {})
+            model_name = model_map.get(node_name, "unknown")
+            st.session_state.cb_model_used[node_name] = model_name
+
+            if node_name == "router":
+                decision = state_update.get("router_decision", {})
+                route = decision.get("route", "new_feature")
+                reason = decision.get("reason", "")
+                st.session_state.cb_router_reason = f"检测到：{route}，原因：{reason}"
+
+                if route == "new_feature":
+                    st.session_state.cb_active_path = ["cb_analyst", "cb_architect", "cb_coder"]
+                elif route == "code_review":
+                    st.session_state.cb_active_path = ["cb_reviewer", "cb_optimizer"]
+                elif route == "tech_question":
+                    st.session_state.cb_active_path = ["cb_researcher", "cb_advisor"]
+                else:
+                    st.session_state.cb_active_path = ["cb_analyst", "cb_architect", "cb_coder"]
+
+                for i, agent in enumerate(st.session_state.cb_active_path):
+                    st.session_state.cb_agent_status[agent] = "running" if i == 0 else "pending"
+            else:
+                result_content = state_update.get(result_key, "")
+                st.session_state.cb_results[node_name] = result_content
+
+                if node_name in st.session_state.cb_active_path:
+                    idx = st.session_state.cb_active_path.index(node_name)
+                    if idx + 1 < len(st.session_state.cb_active_path):
+                        next_agent = st.session_state.cb_active_path[idx + 1]
+                        st.session_state.cb_agent_status[next_agent] = "running"
 
             with path_container.container():
-                st.info(f"🔍 当前执行路径：{' → '.join([NODE_ICONS.get(n, n) for n in active_path])}")
+                if st.session_state.cb_router_reason:
+                    st.info(f"🧭 **条件分支路由决策:** {st.session_state.cb_router_reason}")
 
-                for node_name_key in NODE_LIST:
-                    status = st.session_state.cb_agent_status[node_name_key]
-                    icon = NODE_ICONS[node_name_key]
-                    name = AGENT_NAMES.get(node_name_key, node_name_key)
-                    if status == "done" or node_name_key in active_path:
-                        with st.expander(f"{icon} {name}", expanded=(node_name_key == node_name)):
-                            result = state_update.get(f"{node_name_key}_result", "") if node_name_key == node_name else ""
-                            if result:
-                                st.caption(result[:500])
+                for agent_key in st.session_state.cb_active_path:
+                    status = st.session_state.cb_agent_status.get(agent_key, "pending")
+                    label = f"{AGENT_ICONS[agent_key]} {AGENT_NAMES_LOCAL[agent_key]}"
+                    with st.expander(label, expanded=(status == "running")):
+                        if status == "running":
+                            st.markdown(f"_🔄 {AGENT_NAMES_LOCAL[agent_key]}中…_")
+                        elif status == "done":
+                            m_name = st.session_state.cb_model_used.get(agent_key, "")
+                            if m_name:
+                                st.markdown(f'<span class="model-badge">🧠 {m_name}</span>', unsafe_allow_html=True)
+                            st.markdown(st.session_state.cb_results.get(agent_key, ""))
+                        else:
+                            st.markdown("_⏳ 等待执行…_")
 
         st.session_state.cb_is_running = False
-        st.success("🎉 条件分支分析完成！")
+        st.markdown("---")
+        st.success("🎉 分支执行完成！")
 
-    elif run_btn and not code_input.strip():
-        st.warning("⚠️ 请先输入代码再开始分析。")
+    elif run_btn and not requirement.strip():
+        st.warning("⚠️ 请先输入内容再执行。")
 
+    elif not st.session_state.cb_is_running and st.session_state.cb_results:
+        with path_container.container():
+            st.info(f"🧭 **条件分支路由决策:** {st.session_state.cb_router_reason}")
+            for agent_key in st.session_state.cb_active_path:
+                label = f"{AGENT_ICONS[agent_key]} {AGENT_NAMES_LOCAL[agent_key]}"
+                with st.expander(label, expanded=False):
+                    content = st.session_state.cb_results.get(agent_key, "")
+                    model_name = st.session_state.cb_model_used.get(agent_key, "")
+                    if content:
+                        if model_name:
+                            st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                        st.markdown(content)
+                    else:
+                        st.markdown("_暂无结果_")
     else:
-        st.markdown(
-            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
-            根据代码特征动态选择审查路径：<br>
-            🔍 分析器 → （🔒 安全 / ⚡ 性能 / 🔧 可维护性）→ 📊 汇总
-            </div>""",
-            unsafe_allow_html=True,
-        )
+        with path_container.container():
+            st.markdown(
+                """
+                <div style="text-align:center;padding:60px 20px;color:#AAAAAA;">
+                    <div style="font-size:40px;margin-bottom:16px;">🔀</div>
+                    <div style="font-size:16px;font-weight:500;color:#888888;margin-bottom:8px;">条件分支模式已就绪</div>
+                    <div style="font-size:13px;line-height:1.8;">
+                        输入你的问题，Supervisor 将自动识别类型并激活对应 Agent<br>
+                        <span style="color:#6366f1">新功能</span> |
+                        <span style="color:#7c3aed">代码审查</span> |
+                        <span style="color:#0ea5e9">技术方案</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 
 # ── Loop Feedback 模式 ─────────────────────────────────
 def _render_loop_feedback():
-    """Loop Feedback 模式渲染函数"""
     from loop_feedback import stream_loop
 
-    st.markdown("#### 🔁 循环反馈")
     col_input, col_btn = st.columns([5, 1])
     with col_input:
-        req_input = st.text_area("需求描述", height=120, placeholder="例如：写一个 Python 函数，计算斐波那契数列...", label_visibility="collapsed", key="lf_req")
+        requirement = st.text_area(
+            label="请描述你需要编写的代码",
+            placeholder="例如：写一个用 requests 抓取网页并解析标题的函数",
+            height=120,
+            label_visibility="collapsed",
+            key="lf_requirement",
+        )
     with col_btn:
         st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-        run_btn = st.button("🚀 开始生成", use_container_width=True, type="primary", key="lf_run")
+        run_btn = st.button("🚀 开始执行", use_container_width=True, type="primary", key="lf_run")
 
     st.divider()
 
-    if "lf_history" not in st.session_state:
-        st.session_state.lf_history = []
-    if "lf_is_running" not in st.session_state:
-        st.session_state.lf_is_running = False
+    for key, default in [("lf_history", []), ("lf_is_running", False)]:
+        if key not in st.session_state:
+            st.session_state[key] = default
 
     path_container = st.empty()
 
-    if run_btn and req_input.strip():
+    if run_btn and requirement.strip():
         st.session_state.lf_history = []
         st.session_state.lf_is_running = True
 
-        for node_name, state_update in stream_loop(req_input.strip()):
+        for node_name, state_update in stream_loop(requirement.strip()):
             if node_name == "lf_coder":
-                code = state_update.get("code", "")
-                status = state_update.get("status", "unknown")
+                iteration = state_update.get("iteration", 1)
+                code_result = state_update.get("code_result", "")
+                model_name = state_update.get("model_used_by", {}).get("lf_coder", "unknown")
                 st.session_state.lf_history.append({
-                    "iteration": len(st.session_state.lf_history) + 1,
-                    "code": code,
-                    "status": status,
+                    "iteration": iteration,
+                    "coder_result": code_result,
+                    "coder_model": model_name,
+                    "reviewer_result": None,
+                    "reviewer_model": None,
+                    "status": None,
+                    "feedback": None,
                 })
+            elif node_name == "lf_reviewer":
+                status = state_update.get("status", "fail")
+                feedback = state_update.get("feedback", "")
+                model_name = state_update.get("model_used_by", {}).get("lf_reviewer", "unknown")
+                if st.session_state.lf_history:
+                    st.session_state.lf_history[-1]["reviewer_result"] = feedback
+                    st.session_state.lf_history[-1]["reviewer_model"] = model_name
+                    st.session_state.lf_history[-1]["status"] = status
+                    st.session_state.lf_history[-1]["feedback"] = feedback
 
             with path_container.container():
-                for i, entry in enumerate(st.session_state.lf_history):
-                    iter_num = entry["iteration"]
-                    status = entry["status"]
-                    code = entry["code"]
+                for i, history in enumerate(st.session_state.lf_history):
+                    iter_num = history["iteration"]
+                    st.markdown(f"### 第 {iter_num} 轮迭代")
 
-                    is_last = (i == len(st.session_state.lf_history) - 1)
+                    with st.expander("💻 编码生成", expanded=(i == len(st.session_state.lf_history) - 1 and history["reviewer_result"] is None)):
+                        st.markdown(f'<span class="model-badge">🧠 {history["coder_model"]}</span>', unsafe_allow_html=True)
+                        st.markdown(history["coder_result"])
 
-                    with st.expander(f"💻 代码生成（第{iter_num}轮）", expanded=is_last):
-                        st.code(code, language="python")
-                        if status == "pass":
-                            st.success("✅ 代码审查通过！")
-                        else:
-                            st.error("❌ 代码审查未通过，正在修复...")
+                    if history["reviewer_result"] is not None:
+                        exp_label = "🔍 代码审查 ✅ 通过" if history["status"] == "pass" else "🔍 代码审查 ❌ 不通过"
+                        with st.expander(exp_label, expanded=(i == len(st.session_state.lf_history) - 1)):
+                            st.markdown(f'<span class="model-badge">🧠 {history["reviewer_model"]}</span>', unsafe_allow_html=True)
+                            if history["status"] == "pass":
+                                st.success("质检通过！")
+                            else:
+                                st.error(f"质检不通过，打回重做。\n\n**反馈意见：**\n{history['feedback']}")
+                    else:
+                        with st.expander("🔍 代码审查", expanded=True):
+                            st.markdown("_🔄 审查中…_")
 
-                if st.session_state.lf_is_running:
-                    st.info("🔄 正在生成/修复代码中...")
+                    st.markdown("<hr style='margin: 1em 0; border: none; border-top: 1px dashed #DCDCDC;'/>", unsafe_allow_html=True)
+
+                if len(st.session_state.lf_history) >= 3 and st.session_state.lf_history[-1].get("status") == "fail":
+                    st.error("⚠️ 达到最大迭代次数 (3次)，循环终止。")
 
         st.session_state.lf_is_running = False
-        st.success("🎉 代码生成完成并通过审查！")
+        st.success("🎉 循环反馈执行完成！")
 
-    elif run_btn and not req_input.strip():
-        st.warning("⚠️ 请先输入需求描述再开始生成。")
+    elif run_btn and not requirement.strip():
+        st.warning("⚠️ 请先输入需求再执行。")
 
     elif not st.session_state.lf_is_running and st.session_state.lf_history:
         with path_container.container():
-            for i, entry in enumerate(st.session_state.lf_history):
-                iter_num = entry["iteration"]
-                status = entry["status"]
-                code = entry["code"]
+            for i, history in enumerate(st.session_state.lf_history):
+                iter_num = history["iteration"]
+                st.markdown(f"### 第 {iter_num} 轮迭代")
 
-                with st.expander(f"💻 代码生成（第{iter_num}轮）", expanded=False):
-                    st.code(code, language="python")
-                    if status == "pass":
-                        st.success("✅ 代码审查通过！")
-                    else:
-                        st.error("❌ 代码审查未通过")
+                with st.expander("💻 编码生成", expanded=False):
+                    st.markdown(f'<span class="model-badge">🧠 {history["coder_model"]}</span>', unsafe_allow_html=True)
+                    st.markdown(history["coder_result"])
+
+                if history["reviewer_result"] is not None:
+                    exp_label = "🔍 代码审查 ✅ 通过" if history["status"] == "pass" else "🔍 代码审查 ❌ 不通过"
+                    with st.expander(exp_label, expanded=(history["status"] == "pass" or i == len(st.session_state.lf_history) - 1)):
+                        st.markdown(f'<span class="model-badge">🧠 {history["reviewer_model"]}</span>', unsafe_allow_html=True)
+                        if history["status"] == "pass":
+                            st.success("质检通过！")
+                        else:
+                            st.error(f"质检不通过，打回重做。\n\n**反馈意见：**\n{history['feedback']}")
+
+                st.markdown("<hr style='margin: 1em 0; border: none; border-top: 1px dashed #DCDCDC;'/>", unsafe_allow_html=True)
+
+            if len(st.session_state.lf_history) >= 3 and st.session_state.lf_history[-1].get("status") == "fail":
+                st.error("⚠️ 达到最大迭代次数 (3次)，循环终止。")
 
     else:
-        st.markdown(
-            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
-            💻 代码生成 → 🔍 代码审查 → 🔧 修复<br>
-            循环直到审查通过
-            </div>""",
-            unsafe_allow_html=True,
-        )
+        with path_container.container():
+            st.markdown(
+                """
+                <div style="text-align:center;padding:60px 20px;color:#AAAAAA;">
+                    <div style="font-size:40px;margin-bottom:16px;">🔄</div>
+                    <div style="font-size:16px;font-weight:500;color:#888888;margin-bottom:8px;">循环反馈模式已就绪</div>
+                    <div style="font-size:13px;line-height:1.8;">
+                        输入代码需求，Agent 将自动进行"编码-审查-修改"循环<br>
+                        最多迭代 3 次，直到代码满足标准（异常处理、类型注解、注释）
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 
 # ── Parallel Review 模式 ────────────────────────────────
@@ -849,51 +957,63 @@ def _render_parallel_review():
 
     st.divider()
 
+    PR_MODEL_KEYS = {"security_agent": "security", "performance_agent": "performance", "maintainability_agent": "maintainability", "merge_agent": "merger"}
+    PR_RESULT_KEYS = {"security_agent": "security_result", "performance_agent": "performance_result", "maintainability_agent": "maintainability_result", "merge_agent": "merged_report"}
+    PR_AGENTS = ["security_agent", "performance_agent", "maintainability_agent", "merge_agent"]
+
     if "pr_agent_status" not in st.session_state:
-        st.session_state.pr_agent_status = {
-            "security_agent": "pending",
-            "performance_agent": "pending",
-            "maintainability_agent": "pending",
-            "merge_agent": "pending",
-        }
+        st.session_state.pr_agent_status = {k: "pending" for k in PR_AGENTS}
+    if "pr_results" not in st.session_state:
+        st.session_state.pr_results = {}
+    if "pr_model_used" not in st.session_state:
+        st.session_state.pr_model_used = {}
     if "pr_is_running" not in st.session_state:
         st.session_state.pr_is_running = False
 
     path_container = st.empty()
 
+    def _render_pr_state():
+        with path_container.container():
+            status_cols = st.columns(4)
+            for i, agent_key in enumerate(PR_AGENTS):
+                with status_cols[i]:
+                    icon = AGENT_ICONS[agent_key]
+                    name = AGENT_NAMES[agent_key]
+                    badge = _status_badge(st.session_state.pr_agent_status[agent_key])
+                    st.markdown(f"<div style='text-align:center'><div style='font-size:24px'>{icon}</div><div style='font-size:12px;font-weight:500'>{name}</div><div style='font-size:11px;margin-top:4px'>{badge}</div></div>", unsafe_allow_html=True)
+
+            for agent_key in ["security_agent", "performance_agent", "maintainability_agent"]:
+                result = st.session_state.pr_results.get(agent_key, "")
+                with st.expander(f"{AGENT_ICONS[agent_key]} {AGENT_NAMES[agent_key]}", expanded=False):
+                    model_name = st.session_state.pr_model_used.get(PR_MODEL_KEYS[agent_key], "")
+                    if model_name:
+                        st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                    if result:
+                        st.markdown(result)
+
+            merge_result = st.session_state.pr_results.get("merge_agent", "")
+            with st.expander(f"📋 {AGENT_NAMES['merge_agent']}", expanded=bool(merge_result)):
+                model_name = st.session_state.pr_model_used.get("merger", "")
+                if model_name:
+                    st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                if merge_result:
+                    st.markdown(merge_result)
+
     if run_btn and code_input.strip():
-        st.session_state.pr_agent_status = {k: "pending" for k in ["security_agent", "performance_agent", "maintainability_agent", "merge_agent"]}
+        st.session_state.pr_agent_status = {k: "pending" for k in PR_AGENTS}
+        st.session_state.pr_results = {}
+        st.session_state.pr_model_used = {}
         st.session_state.pr_is_running = True
 
         for node_name, state_update in stream_parallel(code_input.strip(), "python"):
+            st.session_state.pr_model_used.update(state_update.get("model_used_by", {}))
             if node_name in st.session_state.pr_agent_status:
                 st.session_state.pr_agent_status[node_name] = "done"
-
-            with path_container.container():
-                status_cols = st.columns(4)
-                agents = ["security_agent", "performance_agent", "maintainability_agent", "merge_agent"]
-                for i, agent_key in enumerate(agents):
-                    with status_cols[i]:
-                        icon = AGENT_ICONS[agent_key]
-                        name = AGENT_NAMES[agent_key]
-                        badge = _status_badge(st.session_state.pr_agent_status[agent_key])
-                        st.markdown(f"<div style='text-align:center'><div style='font-size:24px'>{icon}</div><div style='font-size:12px;font-weight:500'>{name}</div><div style='font-size:11px;margin-top:4px'>{badge}</div></div>", unsafe_allow_html=True)
-
-                expanders = {}
-                for agent_key in ["security_agent", "performance_agent", "maintainability_agent"]:
-                    expanders[agent_key] = st.expander(f"{AGENT_ICONS[agent_key]} {AGENT_NAMES[agent_key]}", expanded=False)
-
-                if node_name in expanders:
-                    with expanders[node_name]:
-                        result = state_update.get(f"{node_name}_result", "")
-                        if result:
-                            st.markdown(result[:500] + "...")
-
-                if node_name == "merge_agent":
-                    with st.expander(f"📋 {AGENT_NAMES['merge_agent']}", expanded=True):
-                        result = state_update.get("merged_report", "")
-                        if result:
-                            st.success(result)
+                result_key = PR_RESULT_KEYS.get(node_name, "")
+                result = state_update.get(result_key, "")
+                if result:
+                    st.session_state.pr_results[node_name] = result
+            _render_pr_state()
 
         st.session_state.pr_is_running = False
         st.success("🎉 并行审查完成！")
@@ -901,21 +1021,8 @@ def _render_parallel_review():
     elif run_btn and not code_input.strip():
         st.warning("⚠️ 请先输入代码再开始审查。")
 
-    elif not st.session_state.pr_is_running and st.session_state.pr_agent_status["merge_agent"] == "done":
-        with path_container.container():
-            status_cols = st.columns(4)
-            for i, agent_key in enumerate(["security_agent", "performance_agent", "maintainability_agent", "merge_agent"]):
-                with status_cols[i]:
-                    icon = AGENT_ICONS[agent_key]
-                    name = AGENT_NAMES[agent_key]
-                    st.markdown(f"<div style='text-align:center'><div style='font-size:24px'>{icon}</div><div style='font-size:12px;font-weight:500'>{name}</div><div style='font-size:11px;margin-top:4px'>{_status_badge('done')}</div></div>", unsafe_allow_html=True)
-
-            for agent_key in ["security_agent", "performance_agent", "maintainability_agent"]:
-                with st.expander(f"{AGENT_ICONS[agent_key]} {AGENT_NAMES[agent_key]}", expanded=False):
-                    st.caption("审查结果（静态展示）")
-
-            with st.expander(f"📋 {AGENT_NAMES['merge_agent']}", expanded=True):
-                st.success("审查报告已完成（静态展示）")
+    elif not st.session_state.pr_is_running and st.session_state.pr_results:
+        _render_pr_state()
 
     else:
         st.markdown(
@@ -983,8 +1090,7 @@ def _render_debate():
                     is_last = (i == len(st.session_state.db_history) - 1) and not st.session_state.db_conclusion
 
                     with st.expander(f"{icon} {name}", expanded=is_last):
-                        model_map = state_update.get("model_used_by", {})
-                        model_key = "pro_agent" if role == "pro" else "con_agent"
+                        model_key = "pro" if role == "pro" else "con"
                         model_name = st.session_state.db_model_used.get(model_key, "")
                         if model_name:
                             st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
@@ -1016,7 +1122,7 @@ def _render_debate():
                 name = f"{'支持方' if role == 'pro' else '反对方'} (第{round_num}轮)"
 
                 with st.expander(f"{icon} {name}", expanded=False):
-                    model_key = "pro_agent" if role == "pro" else "con_agent"
+                    model_key = "pro" if role == "pro" else "con"
                     model_name = st.session_state.db_model_used.get(model_key, "")
                     if model_name:
                         st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
