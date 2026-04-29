@@ -30,49 +30,458 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+    /* 全局样式 */
+    .stApp {
+        background-color: #F8F9FA;
+    }
+    
+    /* 顶部导航栏 */
+    .top-navbar {
+        background: linear-gradient(135deg, #1D4ED8 0%, #3B82F6 100%);
+        padding: 14px 40px;
+        margin: -8px -80px 30px -80px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .navbar-logo {
+        font-size: 32px;
+    }
+
+    .navbar-title {
+        color: #FFFFFF !important;
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .navbar-right {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+        font-weight: 400;
+    }
+    
+    /* 模式卡片样式 */
+    .mode-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+        border: 2px solid #E5E7EB;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .mode-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(108, 99, 255, 0.2);
+        border-color: #6C63FF;
+    }
+    
+    .mode-card.selected {
+        border-color: #6C63FF;
+        background: linear-gradient(135deg, #F5F3FF 0%, #FFFFFF 100%);
+        box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+    }
+    
+    .mode-card-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+        text-align: center;
+    }
+    
+    .mode-card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+    
+    .mode-card-desc {
+        font-size: 13px;
+        color: #6B7280;
+        line-height: 1.5;
+        text-align: center;
+        margin-bottom: 12px;
+    }
+    
+    .mode-card-status {
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .status-ready {
+        color: #10B981;
+    }
+    
+    .status-coming {
+        color: #F59E0B;
+    }
+    
+    /* 输入框样式 */
+    .stTextArea textarea {
+        border-radius: 12px !important;
+        border: 2px solid #E5E7EB !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        padding: 16px !important;
+        font-size: 14px !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stTextArea textarea:focus {
+        border-color: #6C63FF !important;
+        box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1) !important;
+    }
+    
+    /* 按钮样式 */
+    .stButton > button {
+        background: linear-gradient(135deg, #6C63FF 0%, #8B7FFF 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 12px 24px !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        box-shadow: 0 4px 6px rgba(108, 99, 255, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 12px rgba(108, 99, 255, 0.4) !important;
+    }
+    
+    .stButton > button:active {
+        transform: translateY(0) !important;
+    }
+    
+    /* Agent状态卡片 */
+    .agent-status-card {
+        background: white;
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .agent-status-card:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* 折叠面板样式 */
+    .streamlit-expanderHeader {
+        background: white !important;
+        border-radius: 8px !important;
+        border: 1px solid #E5E7EB !important;
+        padding: 12px 16px !important;
+        font-weight: 600 !important;
+        color: #1F2937 !important;
+    }
+    
+    .streamlit-expanderHeader:hover {
+        border-color: #6C63FF !important;
+        background: #F9FAFB !important;
+    }
+    
+    .streamlit-expanderContent {
+        border: 1px solid #E5E7EB !important;
+        border-top: none !important;
+        border-radius: 0 0 8px 8px !important;
+        background: white !important;
+    }
+    
+    /* Model Badge */
     .model-badge {
         display: inline-block;
-        background: #1e293b;
-        color: #60a5fa;
-        font-size: 12px;
-        padding: 2px 8px;
-        border-radius: 10px;
+        background: linear-gradient(135deg, #6C63FF 0%, #8B7FFF 100%);
+        color: white;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 12px;
         margin-bottom: 8px;
         font-family: 'Courier New', monospace;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(108, 99, 255, 0.3);
     }
+    
+    /* 状态徽章 */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .status-pending {
+        background: #F3F4F6;
+        color: #6B7280;
+    }
+    
+    .status-running {
+        background: #DBEAFE;
+        color: #2563EB;
+    }
+    
+    .status-done {
+        background: #D1FAE5;
+        color: #059669;
+    }
+    
     /* 隐藏 Streamlit 默认元素 */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
+    [data-testid="stToolbar"] {visibility: hidden; height: 0 !important; min-height: 0 !important;}
+    [data-testid="stDecoration"] {visibility: hidden; height: 0 !important;}
+    header[data-testid="stHeader"] {height: 0 !important; min-height: 0 !important;}
+    
+    /* 侧边栏样式 - 与主区域一致的浅色背景 */
+    [data-testid="stSidebar"] {
+        background-color: #F8F9FA !important;
+        border-right: 1px solid #E5E7EB !important;
+        padding: 6px 12px !important;
+    }
+    
+    [data-testid="stSidebar"] > div:first-child {
+        background: transparent !important;
+    }
+    
+    
+    /* 主内容区域 */
+    .main .block-container {
+        padding-top: 0 !important;
+        padding-bottom: 2rem;
+        max-width: 1200px;
+    }
+    [data-testid="stMainBlockContainer"] {
+        padding-top: 0 !important;
+    }
+    
+    /* 信息提示框 */
+    .stAlert {
+        border-radius: 8px !important;
+        border-left: 4px solid #6C63FF !important;
+    }
+    
+    /* 成功提示框 */
+    .stSuccess {
+        background-color: #D1FAE5 !important;
+        border-left-color: #10B981 !important;
+    }
+    
+    /* 警告提示框 */
+    .stWarning {
+        background-color: #FEF3C7 !important;
+        border-left-color: #F59E0B !important;
+    }
+    
+    /* 错误提示框 */
+    .stError {
+        background-color: #FEE2E2 !important;
+        border-left-color: #EF4444 !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
+# ── 顶部导航栏 ───────────────────────────────────────────
+st.markdown(
+    """
+    <div class="top-navbar">
+        <div class="navbar-left">
+            <h1 class="navbar-title">多智能体协作分析平台</h1>
+        </div>
+        <div class="navbar-right">
+            基于 LangGraph + Groq 的智能协作系统
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
 # ── 侧边栏：模式选择 ──────────────────────────────────
-st.sidebar.title("🤖 Multi-Agent 平台")
-st.sidebar.markdown("---")
+st.sidebar.markdown("""
+<div style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #E5E7EB;">
+    <div style="font-size: 12px; color: #9CA3AF; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 5px;">编排模式</div>
+    <div style="font-size: 16px; color: #374151; font-weight: 700;">点击卡片选择协作方式 👇</div>
+</div>
+""", unsafe_allow_html=True)
 
 MODES = [
-    {"key": "supervisor_pipeline", "label": "Supervisor Pipeline", "icon": "🔄", "desc": "监督者流水线：顺序执行，每个 Agent 处理前一个的输出"},
-    {"key": "conditional_branch", "label": "Conditional Branch", "icon": "🔀", "desc": "条件分支：根据代码特征动态选择审查路径"},
-    {"key": "loop_feedback", "label": "Loop Feedback", "icon": "🔁", "desc": "循环反馈：代码生成 → 审查 → 修复，直到通过"},
-    {"key": "parallel", "label": "Parallel Review", "icon": "⚡", "desc": "并行审查：安全、性能、可维护性同时分析后汇总"},
-    {"key": "debate", "label": "Debate", "icon": "⚔️", "desc": "辩论对抗：支持方 vs 反对方，裁判给出最终建议"},
-    {"key": "nested_agent", "icon": "🪆", "label": "Nested Agent", "desc": "嵌套 Agent：Orchestrator 召唤子 Agent 并行执行后汇总"},
-    {"key": "hybrid_a", "icon": "🌀", "label": "Hybrid A", "desc": "混合模式 A：并行生成 + 循环质检 + 条件分支"},
-    {"key": "hybrid_b", "icon": "🔀", "label": "Hybrid B", "desc": "辩论 + 嵌套 Agent：支持方/反对方召唤子Agent收集数据后辩论"},
+    {"key": "supervisor_pipeline", "label": "顺序流水线", "icon": "🔄", "desc": "每个 Agent 处理前一个的输出", "status": "Ready"},
+    {"key": "conditional_branch", "label": "条件分支", "icon": "🔀", "desc": "根据代码特征动态选择审查路径", "status": "Ready"},
+    {"key": "loop_feedback", "label": "循环反馈", "icon": "🔁", "desc": "代码生成→审查→修复，直到通过", "status": "Ready"},
+    {"key": "parallel", "label": "并行执行", "icon": "🔱", "desc": "多维度同时分析后汇总报告", "status": "Ready"},
+    {"key": "debate", "label": "辩论模式", "icon": "⚔️", "desc": "支持方 vs 反对方，裁判给出建议", "status": "Ready"},
+    {"key": "nested_agent", "icon": "🪆", "label": "嵌套 Agent", "desc": "Orchestrator 召唤子 Agent 并行执行", "status": "Ready"},
+    {"key": "hybrid_a", "icon": "🎛️", "label": "混合模式 A", "desc": "并行生成 + 循环质检 + 条件分支", "status": "Ready"},
+    {"key": "hybrid_b", "icon": "🎭", "label": "混合模式 B", "desc": "辩论 + 嵌套 Agent 综合协作", "status": "Coming"},
 ]
 
-mode_labels = [f"{m['icon']} {m['label']}" for m in MODES]
-mode_keys = [m["key"] for m in MODES]
+# 初始化选中的模式
+if "selected_mode_key" not in st.session_state:
+    st.session_state.selected_mode_key = "supervisor_pipeline"
 
-selected_label = st.sidebar.radio("选择协作模式", mode_labels)
-current_mode = MODES[mode_labels.index(selected_label)]
-selected_mode_label = selected_label
+# 注入侧边栏核心 CSS
+st.sidebar.markdown(
+    """
+    <style>
+    /* 侧边栏容器 */
+    [data-testid="stSidebar"] {
+        background-color: #F8F9FA !important;
+        border-right: 1px solid #E5E7EB !important;
+    }
+    
+    /* 侧边栏标题 */
+    [data-testid="stSidebar"] h3 {
+        color: #374151 !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        margin-bottom: 20px !important;
+        border-left: 4px solid #6C63FF;
+        padding-left: 12px !important;
+    }
 
-st.sidebar.markdown("---")
-st.sidebar.caption(current_mode["desc"])
+    /* 视觉卡片层 */
+    .mode-card-visual {
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 16px 20px; /* 显著增加内边距 */
+        height: 100px; /* 匹配精确高度 */
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        z-index: 1;
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+
+    .mode-card-visual.selected {
+        border-left: 5px solid #6C63FF !important;
+        background: white;
+        border-color: #6C63FF;
+        box-shadow: 0 4px 20px rgba(108, 99, 255, 0.15);
+    }
+
+    /* 当覆盖在上面的按钮被 hover 时，下方的视觉卡片触发动效 */
+    [data-testid="stSidebar"] .element-container:has(+ .element-container .stButton button:hover) .mode-card-visual {
+        border-color: #6C63FF !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 25px rgba(108, 99, 255, 0.12) !important;
+    }
+
+    .card-row-1 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .card-icon { font-size: 18px; }
+    .card-title-text { 
+        font-weight: 600; 
+        font-size: 15px; 
+        color: #1F2937; 
+    }
+
+    .card-row-2 {
+        font-size: 12px;
+        color: #6B7280;
+        line-height: 1.5;
+        margin-top: 6px;
+        text-align: left;
+    }
+
+    /* 按钮交互层（完全透明） */
+    [data-testid="stSidebar"] .stMarkdown {
+        margin-bottom: 0px !important;
+    }
+
+    [data-testid="stSidebar"] .stButton {
+        height: 100px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    [data-testid="stSidebar"] .element-container:has(.stButton) {
+        margin-top: -116px !important; /* 向上拉 100px高度 + 16px gap 覆盖卡片 */
+        margin-bottom: 12px !important; /* 控制卡片间的间距 */
+    }
+
+    [data-testid="stSidebar"] .stButton > button {
+        height: 100px !important;
+        background: transparent !important;
+        border: none !important;
+        color: transparent !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        z-index: 10 !important;
+        outline: none !important;
+        padding: 0 !important;
+    }
+    
+    [data-testid="stSidebar"] .stButton > button:hover,
+    [data-testid="stSidebar"] .stButton > button:active,
+    [data-testid="stSidebar"] .stButton > button:focus {
+        background: transparent !important;
+        border: none !important;
+        color: transparent !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# 渲染卡片循环
+for mode in MODES:
+    is_selected = st.session_state.selected_mode_key == mode["key"]
+    
+    # 1. 渲染视觉外观
+    st.sidebar.markdown(f"""
+        <div class="mode-card-visual {'selected' if is_selected else ''}">
+            <div class="card-row-1">
+                <span class="card-title-group">
+                    <span class="card-icon">{mode['icon']}</span>
+                    <span class="card-title-text">{mode['label']}</span>
+                </span>
+            </div>
+            <div class="card-row-2">{mode['desc']}</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # 2. 渲染透明按钮覆盖层
+    if st.sidebar.button("", key=f"nav_btn_{mode['key']}", use_container_width=True):
+        st.session_state.selected_mode_key = mode["key"]
+        st.rerun()
+
+# ── 获取当前选中的模式数据 ──────────────────────────────
+current_mode = next((m for m in MODES if m["key"] == st.session_state.selected_mode_key), MODES[0])
+selected_mode_label = f"{current_mode['icon']} {current_mode['label']}"
 
 # ── Agent 图标和名称映射 ─────────────────────────────
 AGENT_ICONS = {
@@ -136,11 +545,11 @@ AGENT_NAMES = {
 # ── 通用组件 ───────────────────────────────────────────
 
 def _status_badge(status: str) -> str:
-    """返回状态徽章 HTML"""
+    """返回状态徽章 HTML（使用新的紫色主题样式）"""
     badges = {
-        "pending": '<span style="color:#888;">⏳ 等待中</span>',
-        "running": '<span style="color:#3b82f6;">🔄 运行中</span>',
-        "done": '<span style="color:#10b981;">✅ 完成</span>',
+        "pending": '<span class="status-badge status-pending">⏳ 等待中</span>',
+        "running": '<span class="status-badge status-running">🔄 运行中</span>',
+        "done": '<span class="status-badge status-done">✅ 完成</span>',
     }
     return badges.get(status, status)
 
@@ -168,7 +577,7 @@ def _render_supervisor_pipeline():
     AGENT_ORDER = ["requirement", "architect", "coder", "tester", "documenter"]
     AGENT_ICONS_LOCAL = {"requirement": "📋", "architect": "🏗️", "coder": "💻", "tester": "🧪", "documenter": "📝"}
 
-    st.markdown("#### 🔄 Supervisor Pipeline")
+    st.markdown("#### 🔄 顺序流水线")
     col_input, col_btn = st.columns([5, 1])
     with col_input:
         req_input = st.text_area("需求描述", height=120, placeholder="例如：开发一个用户登录模块，支持 JWT 认证...", label_visibility="collapsed", key="sp_req")
@@ -206,7 +615,16 @@ def _render_supervisor_pipeline():
                         icon = AGENT_ICONS_LOCAL[agent_key]
                         name = AGENT_NAMES[agent_key]
                         badge = _status_badge(st.session_state.sp_agent_status[agent_key])
-                        st.markdown(f"<div style='text-align:center'><div style='font-size:24px'>{icon}</div><div style='font-size:12px;font-weight:500'>{name}</div><div style='font-size:11px;margin-top:4px'>{badge}</div></div>", unsafe_allow_html=True)
+                        st.markdown(
+                            f"""
+                            <div class="agent-status-card">
+                                <div style='font-size:32px;margin-bottom:8px'>{icon}</div>
+                                <div style='font-size:13px;font-weight:600;color:#1F2937;margin-bottom:8px'>{name}</div>
+                                <div style='font-size:11px'>{badge}</div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
 
                 expanders = {}
                 for agent_key in AGENT_ORDER:
@@ -225,7 +643,7 @@ def _render_supervisor_pipeline():
                             st.success(st.session_state.sp_final)
 
         st.session_state.sp_is_running = False
-        st.success("🎉 Supervisor Pipeline 执行完成！")
+        st.success("🎉 顺序流水线执行完成！")
 
     elif run_btn and not req_input.strip():
         st.warning("⚠️ 请先输入需求描述再开始执行。")
@@ -237,7 +655,16 @@ def _render_supervisor_pipeline():
                 with status_cols[i]:
                     icon = AGENT_ICONS_LOCAL[agent_key]
                     name = AGENT_NAMES[agent_key]
-                    st.markdown(f"<div style='text-align:center'><div style='font-size:24px'>{icon}</div><div style='font-size:12px;font-weight:500'>{name}</div><div style='font-size:11px;margin-top:4px'>{_status_badge('done')}</div></div>", unsafe_allow_html=True)
+                    st.markdown(
+                        f"""
+                        <div class="agent-status-card">
+                            <div style='font-size:32px;margin-bottom:8px'>{icon}</div>
+                            <div style='font-size:13px;font-weight:600;color:#1F2937;margin-bottom:8px'>{name}</div>
+                            <div style='font-size:11px'>{_status_badge('done')}</div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
 
             for agent_key in AGENT_ORDER:
                 with st.expander(f"{AGENT_ICONS_LOCAL[agent_key]} {AGENT_NAMES[agent_key]}", expanded=False):
@@ -248,13 +675,9 @@ def _render_supervisor_pipeline():
     else:
         st.markdown(
             """
-            <div style="text-align:center;padding:60px 20px;color:#AAAAAA;">
-                <div style="font-size:40px;margin-bottom:16px;">🔄</div>
-                <div style="font-size:16px;font-weight:500;color:#888888;margin-bottom:8px;">Supervisor Pipeline 已就绪</div>
-                <div style="font-size:13px;line-height:1.8;">
-                    监督者流水线模式：<br>
-                    📋 需求分析 → 🏗️ 架构师 → 💻 程序员 → 🧪 测试员 → 📝 文档员
-                </div>
+            <div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+                监督者流水线模式：顺序执行，每个 Agent 处理前一个的输出<br>
+                <span style="color:#6C63FF;font-weight:500;">📋 需求分析 → 🏗️ 架构师 → 💻 程序员 → 🧪 测试员 → 📝 文档员</span>
             </div>
             """,
             unsafe_allow_html=True,
@@ -269,7 +692,7 @@ def _render_conditional_branch():
     NODE_LIST = ["input", "analyzer", "security_path", "performance_path", "maintainability_path", "merge"]
     NODE_ICONS = {"input": "📥", "analyzer": "🔍", "security_path": "🔒", "performance_path": "⚡", "maintainability_path": "🔧", "merge": "📊"}
 
-    st.markdown("#### 🔀 Conditional Branch")
+    st.markdown("#### 🔀 条件分支")
     col_input, col_btn = st.columns([5, 1])
     with col_input:
         code_input = st.text_area("输入代码", height=120, placeholder="例如：def login(user, pwd): return True...", label_visibility="collapsed", key="cb_code")
@@ -319,16 +742,10 @@ def _render_conditional_branch():
 
     else:
         st.markdown(
-            """
-            <div style="text-align:center;padding:60px 20px;color:#AAAAAA;">
-                <div style="font-size:40px;margin-bottom:16px;">🔀</div>
-                <div style="font-size:16px;font-weight:500;color:#888888;margin-bottom:8px;">Conditional Branch 已就绪</div>
-                <div style="font-size:13px;line-height:1.8;">
-                    根据代码特征动态选择审查路径：<br>
-                    🔍 分析器 → （🔒 安全 / ⚡ 性能 / 🔧 可维护性）→ 📊 汇总
-                </div>
-            </div>
-            """,
+            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+            根据代码特征动态选择审查路径：<br>
+            🔍 分析器 → （🔒 安全 / ⚡ 性能 / 🔧 可维护性）→ 📊 汇总
+            </div>""",
             unsafe_allow_html=True,
         )
 
@@ -338,7 +755,7 @@ def _render_loop_feedback():
     """Loop Feedback 模式渲染函数"""
     from loop_feedback import stream_loop
 
-    st.markdown("#### 🔁 Loop Feedback")
+    st.markdown("#### 🔁 循环反馈")
     col_input, col_btn = st.columns([5, 1])
     with col_input:
         req_input = st.text_area("需求描述", height=120, placeholder="例如：写一个 Python 函数，计算斐波那契数列...", label_visibility="collapsed", key="lf_req")
@@ -409,16 +826,10 @@ def _render_loop_feedback():
 
     else:
         st.markdown(
-            """
-            <div style="text-align:center;padding:60px 20px;color:#AAAAAA;">
-                <div style="font-size:40px;margin-bottom:16px;">🔁</div>
-                <div style="font-size:16px;font-weight:500;color:#888888;margin-bottom:8px;">Loop Feedback 已就绪</div>
-                <div style="font-size:13px;line-height:1.8;">
-                    💻 代码生成 → 🔍 代码审查 → 🔧 修复<br>
-                    循环直到审查通过
-                </div>
-            </div>
-            """,
+            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+            💻 代码生成 → 🔍 代码审查 → 🔧 修复<br>
+            循环直到审查通过
+            </div>""",
             unsafe_allow_html=True,
         )
 
@@ -428,7 +839,7 @@ def _render_parallel_review():
     """Parallel Review 模式渲染函数 - 并行代码审查"""
     from parallel import stream_parallel
 
-    st.markdown("#### ⚡ Parallel Review")
+    st.markdown("#### 🔱 并行执行")
     col_input, col_btn = st.columns([5, 1])
     with col_input:
         code_input = st.text_area("输入代码", height=120, placeholder="例如：def process_data(data): import os; os.system('rm -rf /')...", label_visibility="collapsed", key="pr_code")
@@ -508,16 +919,10 @@ def _render_parallel_review():
 
     else:
         st.markdown(
-            """
-            <div style="text-align:center;padding:60px 20px;color:#AAAAAA;">
-                <div style="font-size:40px;margin-bottom:16px;">⚡</div>
-                <div style="font-size:16px;font-weight:500;color:#888888;margin-bottom:8px;">Parallel Review 已就绪</div>
-                <div style="font-size:13px;line-height:1.8;">
-                    🔒 安全审查 + ⚡ 性能分析 + 🔧 可维护性分析<br>
-                    并行执行后由 📊 汇总报告
-                </div>
-            </div>
-            """,
+            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+            🔒 安全审查 + ⚡ 性能分析 + 🔧 可维护性分析<br>
+            并行执行后由 📊 汇总报告
+            </div>""",
             unsafe_allow_html=True,
         )
 
@@ -527,7 +932,7 @@ def _render_debate():
     """Debate 模式渲染函数 - 多 Agent 对抗辩论"""
     from debate import stream_debate
 
-    st.markdown("#### ⚔️ 代码辩论")
+    st.markdown("#### ⚔️ 辩论模式")
     col_input, col_btn = st.columns([5, 1])
     with col_input:
         code_input = st.text_area("输入代码", height=120, placeholder="例如：def login(user, pwd): return True...", label_visibility="collapsed", key="db_code")
@@ -626,16 +1031,10 @@ def _render_debate():
                     st.success(st.session_state.db_conclusion)
     else:
         st.markdown(
-            """
-            <div style="text-align:center;padding:60px 20px;color:#AAAAAA;">
-                <div style="font-size:40px;margin-bottom:16px;">⚔️</div>
-                <div style="font-size:16px;font-weight:500;color:#888888;margin-bottom:8px;">Debate 模式已就绪</div>
-                <div style="font-size:13px;line-height:1.8;">
-                    🟢 支持方 vs 🔴 反对方<br>
-                    多轮辩论后由 ⚖️ 裁判给出最终建议
-                </div>
-            </div>
-            """,
+            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+            🟢 支持方 vs 🔴 反对方<br>
+            多轮辩论后由 ⚖️ 裁判给出最终建议
+            </div>""",
             unsafe_allow_html=True,
         )
 
@@ -645,7 +1044,7 @@ def _render_nested_agent():
     """Nested Agent 模式渲染函数"""
     from nested_agent import stream_nested
 
-    st.markdown("#### 🪆 Nested Agent")
+    st.markdown("#### 🪆 嵌套 Agent")
     col_input, col_btn = st.columns([5, 1])
     with col_input:
         req_input = st.text_area("需求描述", height=120, placeholder="例如：开发一个电商网站，支持用户注册、商品浏览、购物车...", label_visibility="collapsed", key="na_req")
@@ -703,7 +1102,7 @@ def _render_nested_agent():
                             st.success(st.session_state.na_result)
 
         st.session_state.na_is_running = False
-        st.success("🎉 Nested Agent 执行完成！")
+        st.success("🎉 嵌套 Agent 执行完成！")
 
     elif run_btn and not req_input.strip():
         st.warning("⚠️ 请先输入需求描述再开始执行。")
@@ -715,17 +1114,11 @@ def _render_nested_agent():
 
     else:
         st.markdown(
-            """
-            <div style="text-align:center;padding:60px 20px;color:#AAAAAA;">
-                <div style="font-size:40px;margin-bottom:16px;">🪆</div>
-                <div style="font-size:16px;font-weight:500;color:#888888;margin-bottom:8px;">Nested Agent 已就绪</div>
-                <div style="font-size:13px;line-height:1.8;">
-                    🎼 Orchestrator 召唤子 Agent 并行执行：<br>
-                    💻 程序员 + 🧪 测试员 + 🔒 安全审查 + 📝 文档员<br>
-                    最后 📦 汇总交付成果
-                </div>
-            </div>
-            """,
+            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+            🎼 Orchestrator 召唤子 Agent 并行执行：<br>
+            💻 程序员 + 🧪 测试员 + 🔒 安全审查 + 📝 文档员<br>
+            最后 📦 汇总交付成果
+            </div>""",
             unsafe_allow_html=True,
         )
 
@@ -735,7 +1128,7 @@ def _render_hybrid_a():
     """Hybrid A 模式渲染函数 - 混合模式 A：并行生成 + 循环质检 + 条件分支"""
     from hybrid_a import stream_hybrid_a
 
-    st.markdown("#### 🌀 Hybrid A · 并行生成 + 循环质检 + 条件分支")
+    st.markdown("#### 🎛️ 混合模式 A")
     col_input, col_btn = st.columns([5, 1])
     with col_input:
         req_input = st.text_area("需求描述", height=120, placeholder="例如：写一个用户认证模块，支持 JWT...", label_visibility="collapsed", key="ha_req")
@@ -832,7 +1225,7 @@ def _render_hybrid_a():
             _render_current_state()
 
         st.session_state.ha_is_running = False
-        st.success("🎉 Hybrid A 执行完成！")
+        st.success("🎉 混合模式 A 执行完成！")
 
     elif run_btn and not req_input.strip():
         st.warning("⚠️ 请先输入需求描述再开始执行。")
@@ -842,18 +1235,12 @@ def _render_hybrid_a():
 
     else:
         st.markdown(
-            """
-            <div style="text-align:center;padding:60px 20px;color:#AAAAAA;">
-                <div style="font-size:40px;margin-bottom:16px;">🌀</div>
-                <div style="font-size:16px;font-weight:500;color:#888888;margin-bottom:8px;">Hybrid A 模式已就绪</div>
-                <div style="font-size:13px;line-height:1.8;">
-                    Phase 1: 💻💰📝 并行生成代码/测试/文档<br>
-                    Phase 2: 🔍 循环质检（直到通过）<br>
-                    Phase 3: 🔀 条件分支（安全/性能/可维护性）<br>
-                    Phase 4: 📋 项目交付报告
-                </div>
-            </div>
-            """,
+            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+            Phase 1: 💻📝🧪 并行生成代码/测试/文档<br>
+            Phase 2: 🔍 循环质检（直到通过）<br>
+            Phase 3: 🔀 条件分支（安全/性能/可维护性）<br>
+            Phase 4: 📋 项目交付报告
+            </div>""",
             unsafe_allow_html=True,
         )
 
@@ -864,7 +1251,7 @@ def _render_hybrid_b():
     from hybrid_b import stream_hybrid_b
 
     # ── 输入区 ───────────────────────────────────────────
-    st.markdown("#### 🏗️ 架构方案评审")
+    st.markdown("#### 🎭 混合模式 B")
     col_input, col_btn = st.columns([5, 1])
     with col_input:
         scheme_input = st.text_area(
@@ -1075,18 +1462,12 @@ def _render_hybrid_b():
                     st.success(st.session_state.hb_conclusion)
     else:
         st.markdown(
-            """
-            <div style="text-align:center;padding:60px 20px;color:#AAAAAA;">
-                <div style="font-size:40px;margin-bottom:16px;">🔀</div>
-                <div style="font-size:16px;font-weight:500;color:#888888;margin-bottom:8px;">Hybrid B 模式已就绪</div>
-                <div style="font-size:13px;line-height:1.8;">
-                    输入架构方案，支持方/反对方召唤子Agent收集数据后辩论<br>
-                    <span style="color:#10b981">🟢 支持方</span> → 召唤 ⚡性能 + 💰成本 Agent<br>
-                    <span style="color:#ef4444">🔴 反对方</span> → 召唤 🔒安全 + 🔧可维护性 Agent<br>
-                    ⚖️ 裁判综合所有数据给出最终建议
-                </div>
-            </div>
-            """,
+            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+            输入架构方案，支持方/反对方召唤子 Agent 收集数据后辩论<br>
+            <span style="color:#10b981">🟢 支持方</span> → 召唤 ⚡性能 + 💰成本 Agent<br>
+            <span style="color:#ef4444">🔴 反对方</span> → 召唤 🔒安全 + 🔧可维护性 Agent<br>
+            ⚖️ 裁判综合所有数据给出最终建议
+            </div>""",
             unsafe_allow_html=True,
         )
 
