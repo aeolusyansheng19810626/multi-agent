@@ -27,7 +27,7 @@ st.set_page_config(
 )
 
 LANGUAGES = {
-    "zh": {"short": "中", "name": "简体中文"},
+    "zh": {"short": "CN", "name": "简体中文"},
     "ja": {"short": "JP", "name": "日本語"},
     "en": {"short": "EN", "name": "English"},
 }
@@ -181,10 +181,10 @@ I18N = {
 
 I18N["ja"] = {
     **I18N["zh"],
-    "app_title": "マルチエージェント協調分析プラットフォーム",
-    "app_subtitle": "LangGraph + Groq ベースのインテリジェント協調システム",
-    "sidebar_label": "編成モード",
-    "sidebar_hint": "カードをクリックして協調方式を選択 👇",
+    "app_title": "ﾏﾙﾁｴｰｼﾞｪﾝﾄ協調分析ﾌﾟﾗｯﾄﾌｫｰﾑ",
+    "app_subtitle": "LangGraph + Groq ﾍﾞｰｽのｲﾝﾃﾘｼﾞｪﾝﾄ協調ｼｽﾃﾑ",
+    "sidebar_label": "編成ﾓｰﾄﾞ",
+    "sidebar_hint": "ｶｰﾄﾞをｸﾘｯｸして協調方式を選択 👇",
     "coming_soon": "近日公開予定です...",
     "status_pending": "⏳ 待機中",
     "status_running": "🔄 実行中",
@@ -192,140 +192,140 @@ I18N["ja"] = {
     "start_run": "🚀 実行開始",
     "start_review": "🚀 レビュー開始",
     "start_debate": "🚀 討論開始",
-    "mode.supervisor": "順次パイプライン",
+    "mode.supervisor": "順次ﾊﾟｲﾌﾟﾗｲﾝ",
     "mode.supervisor_desc": "各 Agent が前段の出力を処理",
     "mode.conditional": "条件分岐",
-    "mode.conditional_desc": "入力特徴に応じてレビュー経路を選択",
-    "mode.loop": "フィードバックループ",
-    "mode.loop_desc": "生成→レビュー→修正を合格まで反復",
+    "mode.conditional_desc": "入力特徴に応じてﾚﾋﾞｭｰ経路を選択",
+    "mode.loop": "ﾌｨｰﾄﾞﾊﾞｯｸﾙｰﾌﾟ",
+    "mode.loop_desc": "生成→ﾚﾋﾞｭｰ→修正を合格まで反復",
     "mode.parallel": "並列実行",
     "mode.parallel_desc": "複数観点で同時分析して集約",
-    "mode.debate": "討論モード",
+    "mode.debate": "討論ﾓｰﾄﾞ",
     "mode.debate_desc": "賛成派 vs 反対派、審判が提案",
-    "mode.nested": "ネスト Agent",
+    "mode.nested": "ﾈｽﾄ Agent",
     "mode.nested_desc": "Orchestrator が子 Agent を並列呼び出し",
-    "mode.hybrid_a": "ハイブリッド A",
+    "mode.hybrid_a": "ﾊｲﾌﾞﾘｯﾄﾞ A",
     "mode.hybrid_a_desc": "並列生成 + 反復品質確認 + 条件分岐",
-    "mode.hybrid_b": "ハイブリッド B",
-    "mode.hybrid_b_desc": "討論 + ネスト Agent の複合協調",
+    "mode.hybrid_b": "ﾊｲﾌﾞﾘｯﾄﾞ B",
+    "mode.hybrid_b_desc": "討論 + ﾈｽﾄ Agent の複合協調",
     "agent.supervisor": "監督者",
     "agent.requirement": "要件分析",
     "agent.analyst": "要件分析",
-    "agent.architect": "アーキテクト",
-    "agent.coder": "プログラマー",
-    "agent.reviewer": "コードレビュー",
-    "agent.tester": "テスター",
-    "agent.documenter": "ドキュメント担当",
-    "agent.security": "セキュリティレビュー",
+    "agent.architect": "ｱｰｷﾃｸﾄ",
+    "agent.coder": "ﾌﾟﾛｸﾞﾗﾏｰ",
+    "agent.reviewer": "ｺｰﾄﾞﾚﾋﾞｭｰ",
+    "agent.tester": "ﾃｽﾀｰ",
+    "agent.documenter": "ﾄﾞｷｭﾒﾝﾄ担当",
+    "agent.security": "ｾｷｭﾘﾃｨﾚﾋﾞｭｰ",
     "agent.performance": "性能分析",
     "agent.maintainability": "保守性分析",
-    "agent.merge": "集約レポート",
+    "agent.merge": "集約ﾚﾎﾟｰﾄ",
     "agent.pro": "賛成派",
     "agent.con": "反対派",
     "agent.judge": "審判",
     "agent.orchestrator": "調整者",
-    "agent.lf_reviewer": "レビュアー",
+    "agent.lf_reviewer": "ﾚﾋﾞｭｱｰ",
     "agent.lf_fixer": "修正担当",
-    "agent.cost": "コスト分析",
-    "supervisor.title": "#### 🔄 順次パイプライン",
+    "agent.cost": "ｺｽﾄ分析",
+    "supervisor.title": "#### 🔄 順次ﾊﾟｲﾌﾟﾗｲﾝ",
     "supervisor.input": "要件説明",
-    "supervisor.placeholder": "例：JWT 認証対応のユーザーログイン機能を開発...",
-    "supervisor.done": "🎉 順次パイプラインが完了しました！",
+    "supervisor.placeholder": "例：JWT 認証対応のﾕｰｻﾞｰﾛｸﾞｲﾝ機能を開発...",
+    "supervisor.done": "🎉 順次ﾊﾟｲﾌﾟﾗｲﾝが完了しました！",
     "supervisor.empty_warning": "⚠️ 要件を入力してから実行してください。",
-    "supervisor.help": "監督者パイプライン：各 Agent が前段の出力を順に処理します<br><span style=\"color:#6C63FF;font-weight:500;\">📋 要件分析 → 🏗️ アーキテクト → 💻 プログラマー → 🔍 コードレビュー</span>",
+    "supervisor.help": "監督者ﾊﾟｲﾌﾟﾗｲﾝ：各 Agent が前段の出力を順に処理します<br><span style=\"color:#6C63FF;font-weight:500;\">📋 要件分析 → 🏗️ ｱｰｷﾃｸﾄ → 💻 ﾌﾟﾛｸﾞﾗﾏｰ → 🔍 ｺｰﾄﾞﾚﾋﾞｭｰ</span>",
     "conditional.title": "#### 🔀 条件分岐",
-    "conditional.input": "要件・コード・技術質問を入力してください",
-    "conditional.placeholder": "例：\n[新機能] WeChat Pay モジュールを追加したい...\n[コードレビュー] この React コードを見てほしい...\n[技術質問] Next.js と Nuxt.js どちらがよい？",
-    "conditional.routing": "🤔 入力タイプを分析中...",
+    "conditional.input": "要件・ｺｰﾄﾞ・技術質問を入力してください",
+    "conditional.placeholder": "例：\n[新機能] WeChat Pay ﾓｼﾞｭｰﾙを追加したい...\n[ｺｰﾄﾞﾚﾋﾞｭｰ] この React ｺｰﾄﾞを見てほしい...\n[技術質問] Next.js と Nuxt.js どちらがよい？",
+    "conditional.routing": "🤔 入力ﾀｲﾌﾟを分析中...",
     "conditional.detected": "検出：{route}、理由：{reason}",
-    "conditional.route_info": "🧭 **条件分岐ルーティング:** {reason}",
+    "conditional.route_info": "🧭 **条件分岐ﾙｰﾃｨﾝｸﾞ:** {reason}",
     "conditional.done": "🎉 分岐実行が完了しました！",
     "conditional.empty_warning": "⚠️ 内容を入力してから実行してください。",
     "conditional.running": "_🔄 {agent} 実行中…_",
     "conditional.waiting": "_⏳ 待機中…_",
     "conditional.no_result": "_結果はまだありません_",
-    "conditional.help": "Router が入力タイプを識別して対応する Agent を起動します：<br><span style=\"color:#6366f1\">新機能</span> | <span style=\"color:#7c3aed\">コードレビュー</span> | <span style=\"color:#0ea5e9\">技術質問</span>",
-    "conditional.router": "ルーティング",
-    "conditional.code_opt": "コード最適化",
+    "conditional.help": "Router が入力ﾀｲﾌﾟを識別して対応する Agent を起動します：<br><span style=\"color:#6366f1\">新機能</span> | <span style=\"color:#7c3aed\">ｺｰﾄﾞﾚﾋﾞｭｰ</span> | <span style=\"color:#0ea5e9\">技術質問</span>",
+    "conditional.router": "ﾙｰﾃｨﾝｸﾞ",
+    "conditional.code_opt": "ｺｰﾄﾞ最適化",
     "conditional.research": "技術調査",
-    "conditional.advisor": "技術アドバイザー",
-    "loop.title": "#### 🔁 フィードバックループ",
-    "loop.input": "作成したいコードを説明してください",
-    "loop.placeholder": "例：requests でページを取得しタイトルを解析する関数",
-    "loop.iteration": "### 第 {n} 回イテレーション",
-    "loop.code": "💻 コード生成",
-    "loop.review": "🔍 コードレビュー",
-    "loop.review_pass": "🔍 コードレビュー ✅ 合格",
-    "loop.review_fail": "🔍 コードレビュー ❌ 不合格",
-    "loop.reviewing": "_🔄 レビュー中…_",
-    "loop.pass": "品質チェック合格！",
-    "loop.fail": "品質チェック不合格。修正に戻します。\n\n**フィードバック：**\n{feedback}",
+    "conditional.advisor": "技術ｱﾄﾞﾊﾞｲｻﾞｰ",
+    "loop.title": "#### 🔁 ﾌｨｰﾄﾞﾊﾞｯｸﾙｰﾌﾟ",
+    "loop.input": "作成したいｺｰﾄﾞを説明してください",
+    "loop.placeholder": "例：requests でﾍﾟｰｼﾞを取得しﾀｲﾄﾙを解析する関数",
+    "loop.iteration": "### 第 {n} 回ｲﾃﾚｰｼｮﾝ",
+    "loop.code": "💻 ｺｰﾄﾞ生成",
+    "loop.review": "🔍 ｺｰﾄﾞﾚﾋﾞｭｰ",
+    "loop.review_pass": "🔍 ｺｰﾄﾞﾚﾋﾞｭｰ ✅ 合格",
+    "loop.review_fail": "🔍 ｺｰﾄﾞﾚﾋﾞｭｰ ❌ 不合格",
+    "loop.reviewing": "_🔄 ﾚﾋﾞｭｰ中…_",
+    "loop.pass": "品質ﾁｪｯｸ合格！",
+    "loop.fail": "品質ﾁｪｯｸ不合格。修正に戻します。\n\n**ﾌｨｰﾄﾞﾊﾞｯｸ：**\n{feedback}",
     "loop.max": "⚠️ 最大反復回数（3回）に達したため終了します。",
-    "loop.done": "🎉 フィードバックループが完了しました！",
+    "loop.done": "🎉 ﾌｨｰﾄﾞﾊﾞｯｸﾙｰﾌﾟが完了しました！",
     "loop.empty_warning": "⚠️ 要件を入力してから実行してください。",
-    "loop.help": "💻 コード生成 → 🔍 コードレビュー → 🔧 フィードバック修正<br>最大 3 回まで反復します",
+    "loop.help": "💻 ｺｰﾄﾞ生成 → 🔍 ｺｰﾄﾞﾚﾋﾞｭｰ → 🔧 ﾌｨｰﾄﾞﾊﾞｯｸ修正<br>最大 3 回まで反復します",
     "parallel.title": "#### 🔱 並列実行",
-    "parallel.input": "コードを入力",
+    "parallel.input": "ｺｰﾄﾞを入力",
     "parallel.placeholder": "例：def process_data(data): import os; os.system('rm -rf /')...",
-    "parallel.done": "🎉 並列レビューが完了しました！",
-    "parallel.empty_warning": "⚠️ コードを入力してからレビューしてください。",
-    "parallel.help": "🔒 セキュリティ + ⚡ 性能 + 🔧 保守性<br>並列実行後に 📊 レポートを集約",
-    "debate.title": "#### ⚔️ 討論モード",
-    "debate.input": "コードを入力",
+    "parallel.done": "🎉 並列ﾚﾋﾞｭｰが完了しました！",
+    "parallel.empty_warning": "⚠️ ｺｰﾄﾞを入力してからﾚﾋﾞｭｰしてください。",
+    "parallel.help": "🔒 ｾｷｭﾘﾃｨ + ⚡ 性能 + 🔧 保守性<br>並列実行後に 📊 ﾚﾎﾟｰﾄを集約",
+    "debate.title": "#### ⚔️ 討論ﾓｰﾄﾞ",
+    "debate.input": "ｺｰﾄﾞを入力",
     "debate.placeholder": "例：def login(user, pwd): return True...",
-    "debate.rounds": "討論ラウンド",
-    "debate.side": "{side}（第{round}ラウンド）",
+    "debate.rounds": "討論ﾗｳﾝﾄﾞ",
+    "debate.side": "{side}（第{round}ﾗｳﾝﾄﾞ）",
     "debate.verdict": "⚖️ 審判の最終判断",
     "debate.running": "🤔 Agent が討論中...",
     "debate.done": "🎉 討論が終了しました！",
-    "debate.empty_warning": "⚠️ コードを入力してから討論してください。",
-    "debate.help": "🟢 賛成派 vs 🔴 反対派<br>複数ラウンド後に ⚖️ 審判が提案します",
-    "nested.title": "#### 🪆 ネスト Agent",
+    "debate.empty_warning": "⚠️ ｺｰﾄﾞを入力してから討論してください。",
+    "debate.help": "🟢 賛成派 vs 🔴 反対派<br>複数ﾗｳﾝﾄﾞ後に ⚖️ 審判が提案します",
+    "nested.title": "#### 🪆 ﾈｽﾄ Agent",
     "nested.input": "要件説明",
-    "nested.placeholder": "例：ユーザー登録、商品閲覧、カート対応のECサイトを開発...",
-    "nested.planning": "🎼 Orchestrator がタスクを計画中...",
+    "nested.placeholder": "例：ﾕｰｻﾞｰ登録、商品閲覧、ｶｰﾄ対応のECｻｲﾄを開発...",
+    "nested.planning": "🎼 Orchestrator がﾀｽｸを計画中...",
     "nested.output": "🧠 {agent} 出力",
     "nested.final": "📦 最終成果物",
-    "nested.done": "🎉 ネスト Agent が完了しました！",
+    "nested.done": "🎉 ﾈｽﾄ Agent が完了しました！",
     "nested.empty_warning": "⚠️ 要件を入力してから実行してください。",
-    "nested.help": "🎼 Orchestrator が子 Agent を並列呼び出し：<br>💻 プログラマー + 🧪 テスター + 🔒 セキュリティレビュー + 📝 ドキュメント担当<br>最後に 📦 集約します",
-    "hybrid_a.title": "#### 🎛️ ハイブリッド A",
+    "nested.help": "🎼 Orchestrator が子 Agent を並列呼び出し：<br>💻 ﾌﾟﾛｸﾞﾗﾏｰ + 🧪 ﾃｽﾀｰ + 🔒 ｾｷｭﾘﾃｨﾚﾋﾞｭｰ + 📝 ﾄﾞｷｭﾒﾝﾄ担当<br>最後に 📦 集約します",
+    "hybrid_a.title": "#### 🎛️ ﾊｲﾌﾞﾘｯﾄﾞ A",
     "hybrid_a.input": "要件説明",
-    "hybrid_a.placeholder": "例：JWT 対応のユーザー認証モジュールを書く...",
-    "hybrid_a.code_round": "💻 コード生成（第{n}回）",
-    "hybrid_a.review_pass": "✅ コードレビュー合格！",
-    "hybrid_a.review_fail": "❌ コードレビュー不合格、修正中...",
-    "hybrid_a.security": "🔒 セキュリティレビューレポート",
-    "hybrid_a.final": "📋 プロジェクト納品レポート",
+    "hybrid_a.placeholder": "例：JWT 対応のﾕｰｻﾞｰ認証ﾓｼﾞｭｰﾙを書く...",
+    "hybrid_a.code_round": "💻 ｺｰﾄﾞ生成（第{n}回）",
+    "hybrid_a.review_pass": "✅ ｺｰﾄﾞﾚﾋﾞｭｰ合格！",
+    "hybrid_a.review_fail": "❌ ｺｰﾄﾞﾚﾋﾞｭｰ不合格、修正中...",
+    "hybrid_a.security": "🔒 ｾｷｭﾘﾃｨﾚﾋﾞｭｰﾚﾎﾟｰﾄ",
+    "hybrid_a.final": "📋 ﾌﾟﾛｼﾞｪｸﾄ納品ﾚﾎﾟｰﾄ",
     "hybrid_a.running": "🔄 実行中...",
-    "hybrid_a.done": "🎉 ハイブリッド A が完了しました！",
+    "hybrid_a.done": "🎉 ﾊｲﾌﾞﾘｯﾄﾞ A が完了しました！",
     "hybrid_a.empty_warning": "⚠️ 要件を入力してから実行してください。",
-    "hybrid_a.help": "Phase 1: 💻📝🧪 コード/テスト/文書を並列生成<br>Phase 2: 🔍 反復品質確認（合格まで）<br>Phase 3: 🔀 条件分岐（安全/性能/保守性）<br>Phase 4: 📋 納品レポート",
-    "hybrid_b.title": "#### 🎭 ハイブリッド B",
-    "hybrid_b.input": "アーキテクチャ案を入力",
-    "hybrid_b.placeholder": "例：Redis を主データベースとしてユーザーセッションとカートを保存...",
-    "hybrid_b.rounds": "討論ラウンド",
-    "hybrid_b.analyzing": "{icon} {side} 第{round}ラウンド分析中...",
+    "hybrid_a.help": "Phase 1: 💻📝🧪 ｺｰﾄﾞ/ﾃｽﾄ/文書を並列生成<br>Phase 2: 🔍 反復品質確認（合格まで）<br>Phase 3: 🔀 条件分岐（安全/性能/保守性）<br>Phase 4: 📋 納品ﾚﾎﾟｰﾄ",
+    "hybrid_b.title": "#### 🎭 ﾊｲﾌﾞﾘｯﾄﾞ B",
+    "hybrid_b.input": "ｱｰｷﾃｸﾁｬ案を入力",
+    "hybrid_b.placeholder": "例：Redis を主ﾃﾞｰﾀﾍﾞｰｽとしてﾕｰｻﾞｰｾｯｼｮﾝとｶｰﾄを保存...",
+    "hybrid_b.rounds": "討論ﾗｳﾝﾄﾞ",
+    "hybrid_b.analyzing": "{icon} {side} 第{round}ﾗｳﾝﾄﾞ分析中...",
     "hybrid_b.call_perf": "⚡ 性能Agentを呼び出し中... {status}",
-    "hybrid_b.call_cost": "💰 コストAgentを呼び出し中... {status}",
-    "hybrid_b.call_security": "🔒 セキュリティAgentを呼び出し中... {status}",
+    "hybrid_b.call_cost": "💰 ｺｽﾄAgentを呼び出し中... {status}",
+    "hybrid_b.call_security": "🔒 ｾｷｭﾘﾃｨAgentを呼び出し中... {status}",
     "hybrid_b.call_maint": "🔧 保守性Agentを呼び出し中... {status}",
     "hybrid_b.waiting": "⏳ 呼び出し中...",
     "hybrid_b.done_status": "✅ 完了",
-    "hybrid_b.perf_data": "**⚡ 性能分析データ**",
-    "hybrid_b.cost_data": "**💰 コスト分析データ**",
-    "hybrid_b.security_data": "**🔒 セキュリティ分析データ**",
-    "hybrid_b.maint_data": "**🔧 保守性分析データ**",
+    "hybrid_b.perf_data": "**⚡ 性能分析ﾃﾞｰﾀ**",
+    "hybrid_b.cost_data": "**💰 ｺｽﾄ分析ﾃﾞｰﾀ**",
+    "hybrid_b.security_data": "**🔒 ｾｷｭﾘﾃｨ分析ﾃﾞｰﾀ**",
+    "hybrid_b.maint_data": "**🔧 保守性分析ﾃﾞｰﾀ**",
     "hybrid_b.argument": "**論点：**",
     "hybrid_b.done": "🎉 討論が終了しました！",
-    "hybrid_b.empty_warning": "⚠️ アーキテクチャ案を入力してから討論してください。",
-    "hybrid_b.help": "アーキテクチャ案を入力し、賛成派/反対派が子 Agent でデータ収集後に討論します<br><span style=\"color:#10b981\">🟢 賛成派</span> → ⚡性能 + 💰コスト Agent<br><span style=\"color:#ef4444\">🔴 反対派</span> → 🔒安全 + 🔧保守性 Agent<br>⚖️ 審判が総合判断します",
+    "hybrid_b.empty_warning": "⚠️ ｱｰｷﾃｸﾁｬ案を入力してから討論してください。",
+    "hybrid_b.help": "ｱｰｷﾃｸﾁｬ案を入力し、賛成派/反対派が子 Agent でﾃﾞｰﾀ収集後に討論します<br><span style=\"color:#10b981\">🟢 賛成派</span> → ⚡性能 + 💰ｺｽﾄ Agent<br><span style=\"color:#ef4444\">🔴 反対派</span> → 🔒安全 + 🔧保守性 Agent<br>⚖️ 審判が総合判断します",
 }
 
 I18N["en"] = {
     **I18N["zh"],
-    "app_title": "Multi-Agent Collaboration Platform",
-    "app_subtitle": "An intelligent workflow system powered by LangGraph + Groq",
+    "app_title": "Multi-Agent Platform",
+    "app_subtitle": "Intelligent workflow system powered by LangGraph + Groq",
     "sidebar_label": "Workflow Modes",
     "sidebar_hint": "Click a card to choose a workflow 👇",
     "coming_soon": "Coming soon...",
@@ -493,12 +493,16 @@ st.markdown(
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
     }
 
     .navbar-left {
         display: flex;
         align-items: center;
         gap: 15px;
+        flex: 1;
+        min-width: 300px;
     }
 
     .navbar-logo {
@@ -507,21 +511,26 @@ st.markdown(
 
     .navbar-title {
         color: #FFFFFF !important;
-        font-size: 24px;
+        font-size: 22px;
         font-weight: 700;
         margin: 0;
+        line-height: 1.3;
+        word-break: keep-all;
     }
 
     .navbar-right {
         color: rgba(255, 255, 255, 0.9);
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 400;
+        line-height: 1.4;
+        max-width: 400px;
     }
 
     .navbar-actions {
         display: flex;
         align-items: center;
         gap: 18px;
+        flex-shrink: 0;
     }
 
     .language-menu {
@@ -531,15 +540,15 @@ st.markdown(
     .language-trigger {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
-        padding: 10px 18px;
-        border: 2px solid rgba(255, 255, 255, 0.8);
+        gap: 6px;
+        padding: 6px 12px;
+        border: 1.5px solid rgba(255, 255, 255, 0.8);
         border-radius: 999px;
         color: #FFFFFF;
-        font-size: 16px;
-        font-weight: 700;
+        font-size: 13px;
+        font-weight: 600;
         background: rgba(255, 255, 255, 0.14);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         cursor: pointer;
     }
 
@@ -547,38 +556,42 @@ st.markdown(
         display: none;
         position: absolute;
         right: 0;
-        top: 52px;
-        width: 260px;
+        top: 40px;
+        width: 200px;
         background: #FFFFFF;
-        border-radius: 16px;
-        padding: 18px 14px;
-        box-shadow: 0 16px 36px rgba(31, 41, 55, 0.22);
+        border-radius: 12px;
+        padding: 12px 10px;
+        box-shadow: 0 12px 28px rgba(31, 41, 55, 0.2);
         z-index: 1000;
     }
 
-    .language-menu:hover .language-dropdown {
+    .language-menu:hover .language-dropdown,
+    .language-dropdown:hover {
         display: block;
     }
 
     .language-title {
         color: #8B8DA2;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 800;
         letter-spacing: 0.08em;
-        margin: 4px 14px 10px;
+        margin: 4px 10px 8px;
+        pointer-events: none;
     }
 
     .language-option {
         display: grid;
-        grid-template-columns: 44px 1fr 28px;
+        grid-template-columns: 36px 1fr 24px;
         align-items: center;
-        gap: 8px;
-        padding: 12px 14px;
-        border-radius: 10px;
+        gap: 6px;
+        padding: 8px 10px;
+        border-radius: 8px;
         color: #111827;
         text-decoration: none !important;
-        font-size: 18px;
+        font-size: 12px;
         font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
     }
 
     .language-option:hover,
@@ -588,7 +601,7 @@ st.markdown(
     }
 
     .language-code {
-        font-size: 15px;
+        font-size: 12px;
         color: #374151;
         font-weight: 800;
     }
@@ -597,6 +610,7 @@ st.markdown(
         color: #6C3FE8;
         font-weight: 900;
         text-align: center;
+        font-size: 14px;
     }
     
     /* 模式卡片样式 */
@@ -830,6 +844,14 @@ st.markdown(
 )
 
 # ── 顶部导航栏 ───────────────────────────────────────────
+language_options_html = ''.join(
+    f"<a href='?lang={code}' target='_self' class=\"language-option {'active' if code == st.session_state.ui_language else ''}\" "
+    f"style='text-decoration: none; display: grid; grid-template-columns: 36px 1fr 24px; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 8px; color: #111827; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;'>"
+    f"<span class=\"language-code\">{meta['short']}</span><span>{meta['name']}</span>"
+    f"<span class=\"language-check\">{'✓' if code == st.session_state.ui_language else ''}</span></a>"
+    for code, meta in LANGUAGES.items()
+)
+
 st.markdown(
     f"""
     <div class="top-navbar">
@@ -842,12 +864,7 @@ st.markdown(
                 <div class="language-trigger">🌐 {LANGUAGES[st.session_state.ui_language]["short"]}⌃</div>
                 <div class="language-dropdown">
                     <div class="language-title">{t("language_label")}</div>
-                    {''.join(
-                        f'<a class="language-option {"active" if code == st.session_state.ui_language else ""}" href="?lang={code}">'
-                        f'<span class="language-code">{meta["short"]}</span><span>{meta["name"]}</span>'
-                        f'<span class="language-check">{"✓" if code == st.session_state.ui_language else ""}</span></a>'
-                        for code, meta in LANGUAGES.items()
-                    )}
+                    {language_options_html}
                 </div>
             </div>
         </div>
@@ -1205,7 +1222,7 @@ def _render_supervisor_pipeline():
         _render_sp_state()
     else:
         st.markdown(
-            """
+            f"""
             <div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
                 {t("supervisor.help")}
             </div>
@@ -1349,7 +1366,7 @@ def _render_conditional_branch():
     else:
         with path_container.container():
             st.markdown(
-                """
+                f"""
                 <div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
                     {t("conditional.help")}
                 </div>
@@ -1472,7 +1489,7 @@ def _render_loop_feedback():
     else:
         with path_container.container():
             st.markdown(
-                """
+                f"""
                 <div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
                     {t("loop.help")}
                 </div>
@@ -1565,7 +1582,7 @@ def _render_parallel_review():
 
     else:
         st.markdown(
-            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+            f"""<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
             {t("parallel.help")}
             </div>""",
             unsafe_allow_html=True,
@@ -1675,7 +1692,7 @@ def _render_debate():
                     st.success(st.session_state.db_conclusion)
     else:
         st.markdown(
-            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+            f"""<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
             {t("debate.help")}
             </div>""",
             unsafe_allow_html=True,
@@ -1698,10 +1715,9 @@ def _render_nested_agent():
     st.divider()
 
     AGENT_LABELS = {
-        "coder": f"💻 {t('agent.coder')}",
-        "tester": f"🧪 {t('agent.tester')}",
-        "security_reviewer": f"🔒 {t('agent.security')}",
-        "documenter": f"📝 {t('agent.documenter')}",
+        "coder_agent": f"💻 {t('agent.coder')}",
+        "tester_agent": f"🧪 {t('agent.tester')}",
+        "documenter_agent": f"📝 {t('agent.documenter')}",
     }
 
     if "na_result" not in st.session_state:
@@ -1710,54 +1726,102 @@ def _render_nested_agent():
         st.session_state.na_model_used = {}
     if "na_is_running" not in st.session_state:
         st.session_state.na_is_running = False
+    if "na_plan" not in st.session_state:
+        st.session_state.na_plan = None
+    if "na_plan_reason" not in st.session_state:
+        st.session_state.na_plan_reason = None
+    if "na_coder_output" not in st.session_state:
+        st.session_state.na_coder_output = None
+    if "na_tester_output" not in st.session_state:
+        st.session_state.na_tester_output = None
+    if "na_documenter_output" not in st.session_state:
+        st.session_state.na_documenter_output = None
 
-    results_container = st.empty()
+    def _render_nested_results():
+        """渲染嵌套Agent的所有结果"""
+        if st.session_state.na_plan:
+            with st.expander("📋 执行规划", expanded=False):
+                st.markdown(f"**规划**: {st.session_state.na_plan}")
+                st.markdown(f"**理由**: {st.session_state.na_plan_reason}")
+        
+        if st.session_state.na_coder_output:
+            with st.expander(f"{AGENT_LABELS['coder_agent']} 输出", expanded=True):
+                model_name = st.session_state.na_model_used.get("coder", "")
+                if model_name:
+                    st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                st.code(st.session_state.na_coder_output, language="python")
+        
+        if st.session_state.na_tester_output:
+            with st.expander(f"{AGENT_LABELS['tester_agent']} 输出", expanded=False):
+                model_name = st.session_state.na_model_used.get("tester", "")
+                if model_name:
+                    st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                st.code(st.session_state.na_tester_output, language="python")
+        
+        if st.session_state.na_documenter_output:
+            with st.expander(f"{AGENT_LABELS['documenter_agent']} 输出", expanded=False):
+                model_name = st.session_state.na_model_used.get("documenter", "")
+                if model_name:
+                    st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                st.markdown(st.session_state.na_documenter_output)
+        
+        if st.session_state.na_result:
+            with st.expander(t("nested.final"), expanded=True):
+                model_name = st.session_state.na_model_used.get("finalizer", "")
+                if model_name:
+                    st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
+                st.success(st.session_state.na_result)
 
     if run_btn and req_input.strip():
         st.session_state.na_result = None
         st.session_state.na_model_used = {}
+        st.session_state.na_plan = None
+        st.session_state.na_plan_reason = None
+        st.session_state.na_coder_output = None
+        st.session_state.na_tester_output = None
+        st.session_state.na_documenter_output = None
         st.session_state.na_is_running = True
+
+        progress_placeholder = st.empty()
 
         for node_name, state_update in stream_nested(req_input.strip()):
             st.session_state.na_model_used.update(state_update.get("model_used_by", {}))
 
-            with results_container.container():
-                if node_name == "orchestrator":
-                    st.info(t("nested.planning"))
+            if node_name == "orchestrator_agent":
+                st.session_state.na_plan = state_update.get("plan", {})
+                st.session_state.na_plan_reason = state_update.get("plan_reason", "")
+                progress_placeholder.info(f"📋 规划完成: {st.session_state.na_plan}")
 
-                elif node_name in ["coder", "tester", "security_reviewer", "documenter"]:
-                    col1, col2 = st.columns([1, 2])
-                    with col1:
-                        st.markdown(f"### {AGENT_LABELS.get(node_name, node_name)}")
-                        model_name = st.session_state.na_model_used.get(node_name, "")
-                        if model_name:
-                            st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
-                    with col2:
-                        result = state_update.get(f"{node_name}_result", "")
-                        if result:
-                            with st.expander(t("nested.output", agent=AGENT_LABELS.get(node_name, node_name)), expanded=True):
-                                st.markdown(result)
+            elif node_name == "coder_agent":
+                st.session_state.na_coder_output = state_update.get("coder_output", "")
+                progress_placeholder.info("💻 代码生成完成")
 
-                elif node_name == "merge":
-                    st.session_state.na_result = state_update.get("final_deliverable", "")
-                    if st.session_state.na_result:
-                        with st.expander(t("nested.final"), expanded=True):
-                            st.success(st.session_state.na_result)
+            elif node_name == "tester_agent":
+                st.session_state.na_tester_output = state_update.get("tester_output", "")
+                progress_placeholder.info("🧪 测试生成完成")
+
+            elif node_name == "documenter_agent":
+                st.session_state.na_documenter_output = state_update.get("documenter_output", "")
+                progress_placeholder.info("📝 文档生成完成")
+
+            elif node_name == "finalizer_agent":
+                st.session_state.na_result = state_update.get("final_output", "")
+                progress_placeholder.info("📦 最终整合完成")
 
         st.session_state.na_is_running = False
+        progress_placeholder.empty()
+        _render_nested_results()
         st.success(t("nested.done"))
 
     elif run_btn and not req_input.strip():
         st.warning(t("nested.empty_warning"))
 
     elif not st.session_state.na_is_running and st.session_state.na_result:
-        with results_container.container():
-            st.markdown(f"### {t('nested.final')}")
-            st.success(st.session_state.na_result)
+        _render_nested_results()
 
     else:
         st.markdown(
-            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+            f"""<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
             {t("nested.help")}
             </div>""",
             unsafe_allow_html=True,
@@ -1779,104 +1843,178 @@ def _render_hybrid_a():
 
     st.divider()
 
-    if "ha_history" not in st.session_state:
-        st.session_state.ha_history = []
+    if "ha_iterations" not in st.session_state:
+        st.session_state.ha_iterations = []  # [{code, reviewer_status, reviewer_feedback}]
+    if "ha_parallel_results" not in st.session_state:
+        st.session_state.ha_parallel_results = {}  # {tester: ..., documenter: ...}
+    if "ha_complexity" not in st.session_state:
+        st.session_state.ha_complexity = None
+    if "ha_security_result" not in st.session_state:
+        st.session_state.ha_security_result = None
     if "ha_final" not in st.session_state:
         st.session_state.ha_final = None
     if "ha_model_used" not in st.session_state:
         st.session_state.ha_model_used = {}
-    if "ha_security_model" not in st.session_state:
-        st.session_state.ha_security_model = ""
     if "ha_is_running" not in st.session_state:
         st.session_state.ha_is_running = False
 
-    path_container = st.empty()
-
-    def _phase1_badge(node: str) -> str:
-        if st.session_state.ha_model_used.get(node):
-            return f'<span class="model-badge">🧠 {st.session_state.ha_model_used[node]}</span>'
-        return ""
-
-    def _render_current_state():
-        with path_container.container():
-            for i, entry in enumerate(st.session_state.ha_history):
-                phase = entry.get("phase", "")
-                if phase == "phase1_parallel":
-                    iter_num = entry.get("iteration", 1)
-                    status = entry.get("status", "unknown")
-                    code = entry.get("code", "")
-                    is_last = (i == len(st.session_state.ha_history) - 1)
-
-                    with st.expander(t("hybrid_a.code_round", n=iter_num), expanded=is_last):
-                        model = st.session_state.ha_model_used.get("lf_coder", "")
+    def _render_ha_results():
+        """渲染混合模式A的完整结果"""
+        # 阶段1：代码生成与质检循环
+        st.markdown("### 📝 阶段1：代码生成与质检")
+        for i, iter_data in enumerate(st.session_state.ha_iterations):
+            iter_num = i + 1
+            code = iter_data.get("code", "")
+            status = iter_data.get("reviewer_status")
+            feedback = iter_data.get("reviewer_feedback", "")
+            
+            # 代码生成
+            with st.expander(f"💻 代码生成（第{iter_num}轮）", expanded=(i == len(st.session_state.ha_iterations) - 1)):
+                model = st.session_state.ha_model_used.get("ha_coder", "")
+                if model:
+                    st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
+                st.code(code, language="python")
+            
+            # 第1轮后显示并行生成（测试+文档）
+            if i == 0 and st.session_state.ha_parallel_results:
+                st.markdown("#### 🔀 并行生成（测试 + 文档）")
+                
+                if "tester" in st.session_state.ha_parallel_results:
+                    with st.expander("🧪 单元测试", expanded=False):
+                        model = st.session_state.ha_model_used.get("ha_tester", "")
                         if model:
                             st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
-                        st.code(code, language="python")
-                        if status == "pass":
-                            st.success(t("hybrid_a.review_pass"))
-                        else:
-                            st.error(t("hybrid_a.review_fail"))
+                        st.code(st.session_state.ha_parallel_results["tester"], language="python")
+                
+                if "documenter" in st.session_state.ha_parallel_results:
+                    with st.expander("📝 技术文档", expanded=False):
+                        model = st.session_state.ha_model_used.get("ha_documenter", "")
+                        if model:
+                            st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
+                        st.markdown(st.session_state.ha_parallel_results["documenter"])
+            
+            # 质检结果
+            if status:
+                if status == "pass":
+                    with st.expander(f"✅ 代码质检通过（第{iter_num}轮）", expanded=False):
+                        model = st.session_state.ha_model_used.get("ha_reviewer", "")
+                        if model:
+                            st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
+                        st.success("代码质量合格，通过审查")
+                else:
+                    with st.expander(f"❌ 代码质检不通过（第{iter_num}轮）", expanded=False):
+                        model = st.session_state.ha_model_used.get("ha_reviewer", "")
+                        if model:
+                            st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
+                        st.error(f"**反馈**: {feedback}")
+        
+        # 阶段2：复杂度分析与安全审查
+        if st.session_state.ha_complexity:
+            st.markdown("### 🔍 阶段2：复杂度分析与安全审查")
+            complexity = st.session_state.ha_complexity
+            model = st.session_state.ha_model_used.get("ha_complexity", "")
+            
+            if complexity == "complex":
+                st.warning(f"🔴 复杂度：**高** → 触发安全审查")
+                if model:
+                    st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
+            else:
+                st.info(f"🟢 复杂度：**低** → 跳过安全审查")
+                if model:
+                    st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
+        
+        # 安全审查（如果有）
+        if st.session_state.ha_security_result:
+            with st.expander("🔒 安全审查报告", expanded=False):
+                model = st.session_state.ha_model_used.get("ha_security", "")
+                if model:
+                    st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
+                st.markdown(st.session_state.ha_security_result)
+        
+        # 阶段3：最终交付
+        if st.session_state.ha_final:
+            st.markdown("### 📦 阶段3：最终交付")
+            with st.expander("项目交付报告", expanded=True):
+                model = st.session_state.ha_model_used.get("ha_finalizer", "")
+                if model:
+                    st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
+                st.success(st.session_state.ha_final)
 
-                elif phase == "phase2_security":
-                    with st.expander(t("hybrid_a.security"), expanded=True):
-                        smodel = st.session_state.ha_security_model
-                        if smodel:
-                            st.markdown(f'<span class="model-badge">🧠 {smodel}</span>', unsafe_allow_html=True)
-                        st.markdown(entry.get("security_report", ""))
-
-                elif phase == "phase3_final":
-                    with st.expander(t("hybrid_a.final"), expanded=True):
-                        st.success(entry.get("final_report", ""))
-
-            if st.session_state.ha_is_running:
-                st.info(t("hybrid_a.running"))
+    results_container = st.empty()
 
     if run_btn and req_input.strip():
-        st.session_state.ha_history = []
+        st.session_state.ha_iterations = []
+        st.session_state.ha_parallel_results = {}
+        st.session_state.ha_complexity = None
+        st.session_state.ha_security_result = None
         st.session_state.ha_final = None
         st.session_state.ha_model_used = {}
-        st.session_state.ha_security_model = ""
         st.session_state.ha_is_running = True
 
         for node_name, state_update in stream_hybrid_a(req_input.strip()):
+            # 跳过中转节点或空更新
+            if not state_update or node_name == "dispatcher":
+                continue
+                
             st.session_state.ha_model_used.update(state_update.get("model_used_by", {}))
 
-            if node_name == "lf_coder":
-                st.session_state.ha_history.append({
-                    "phase": "phase1_parallel",
-                    "iteration": len([e for e in st.session_state.ha_history if e.get("phase") == "phase1_parallel"]) + 1,
-                    "code": state_update.get("code", ""),
-                    "status": state_update.get("status", "unknown"),
+            if node_name == "ha_coder":
+                code = state_update.get("code_result", "")
+                st.session_state.ha_iterations.append({
+                    "code": code,
+                    "reviewer_status": None,
+                    "reviewer_feedback": None,
                 })
 
-            if node_name == "security_reviewer":
-                st.session_state.ha_security_model = st.session_state.ha_model_used.get("security_reviewer", "")
-                st.session_state.ha_history.append({
-                    "phase": "phase2_security",
-                    "security_report": state_update.get("security_report", ""),
-                })
+            elif node_name == "ha_reviewer":
+                status = state_update.get("status", "fail")
+                feedback = state_update.get("feedback", "")
+                if st.session_state.ha_iterations:
+                    st.session_state.ha_iterations[-1]["reviewer_status"] = status
+                    st.session_state.ha_iterations[-1]["reviewer_feedback"] = feedback
 
-            if node_name == "final_merge":
-                st.session_state.ha_final = state_update.get("final_report", "")
-                st.session_state.ha_history.append({
-                    "phase": "phase3_final",
-                    "final_report": st.session_state.ha_final,
-                })
+            elif node_name == "ha_tester":
+                test_output = state_update.get("tester_output", "")
+                if test_output:
+                    st.session_state.ha_parallel_results["tester"] = test_output
 
-            _render_current_state()
+            elif node_name == "ha_documenter":
+                doc_output = state_update.get("documenter_output", "")
+                if doc_output:
+                    st.session_state.ha_parallel_results["documenter"] = doc_output
+
+            elif node_name == "ha_complexity":
+                complexity = state_update.get("complexity", "simple")
+                st.session_state.ha_complexity = complexity
+
+            elif node_name == "ha_security":
+                security_result = state_update.get("security_result", "")
+                if security_result:
+                    st.session_state.ha_security_result = security_result
+
+            elif node_name == "ha_finalizer":
+                final_output = state_update.get("final_output", "")
+                if final_output:
+                    st.session_state.ha_final = final_output
+
+            # 实时渲染当前状态
+            with results_container.container():
+                _render_ha_results()
 
         st.session_state.ha_is_running = False
+        with results_container.container():
+            _render_ha_results()
         st.success(t("hybrid_a.done"))
 
     elif run_btn and not req_input.strip():
         st.warning(t("hybrid_a.empty_warning"))
 
-    elif not st.session_state.ha_is_running and st.session_state.ha_history:
-        _render_current_state()
+    elif not st.session_state.ha_is_running and st.session_state.ha_iterations:
+        _render_ha_results()
 
     else:
         st.markdown(
-            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+            f"""<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
             {t("hybrid_a.help")}
             </div>""",
             unsafe_allow_html=True,
@@ -2101,7 +2239,7 @@ def _render_hybrid_b():
                     st.success(st.session_state.hb_conclusion)
     else:
         st.markdown(
-            """<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
+            f"""<div style="padding:20px 0;color:#6B7280;font-size:14px;line-height:1.8;">
             {t("hybrid_b.help")}
             </div>""",
             unsafe_allow_html=True,

@@ -76,22 +76,41 @@ class HybridAState(TypedDict):
 def ha_coder_node(state: dict) -> dict:
     """调用 lf_coder，同时填充桥接字段 coder_output 供 tester/documenter 使用"""
     result = _lf_coder(state)
-    return {**result, "coder_output": result["code_result"]}
+    # 重新映射 model_used_by 键名：lf_coder → ha_coder
+    model_used_by = result.get("model_used_by", {})
+    if "lf_coder" in model_used_by:
+        model_used_by["ha_coder"] = model_used_by["lf_coder"]
+    return {**result, "coder_output": result["code_result"], "model_used_by": model_used_by}
 
 
 def ha_tester_node(state: dict) -> dict:
     """直接调用 nested_agent tester（读 coder_output，由 ha_coder 已填充）"""
-    return _tester(state)
+    result = _tester(state)
+    # 重新映射 model_used_by 键名：tester → ha_tester
+    model_used_by = result.get("model_used_by", {})
+    if "tester" in model_used_by:
+        model_used_by = {**model_used_by, "ha_tester": model_used_by["tester"]}
+    return {**result, "model_used_by": model_used_by}
 
 
 def ha_documenter_node(state: dict) -> dict:
     """直接调用 nested_agent documenter（读 coder_output，由 ha_coder 已填充）"""
-    return _documenter(state)
+    result = _documenter(state)
+    # 重新映射 model_used_by 键名：documenter → ha_documenter
+    model_used_by = result.get("model_used_by", {})
+    if "documenter" in model_used_by:
+        model_used_by = {**model_used_by, "ha_documenter": model_used_by["documenter"]}
+    return {**result, "model_used_by": model_used_by}
 
 
 def ha_reviewer_node(state: dict) -> dict:
     """直接调用 lf_reviewer（读 code_result）"""
-    return _lf_reviewer(state)
+    result = _lf_reviewer(state)
+    # 重新映射 model_used_by 键名：lf_reviewer → ha_reviewer
+    model_used_by = result.get("model_used_by", {})
+    if "lf_reviewer" in model_used_by:
+        model_used_by = {**model_used_by, "ha_reviewer": model_used_by["lf_reviewer"]}
+    return {**result, "model_used_by": model_used_by}
 
 
 def ha_security_node(state: dict) -> dict:
@@ -101,12 +120,17 @@ def ha_security_node(state: dict) -> dict:
         "code_input": state.get("code_result", ""),
         "language": "python",
     }
-    return _security(adapted)
+    result = _security(adapted)
+    # 重新映射 model_used_by 键名：security → ha_security
+    model_used_by = result.get("model_used_by", {})
+    if "security" in model_used_by:
+        model_used_by = {**model_used_by, "ha_security": model_used_by["security"]}
+    return {**result, "model_used_by": model_used_by}
 
 
 def _dispatcher_node(state: dict) -> dict:
     """并行分发中转节点，状态透传"""
-    return {}
+    return {"model_used_by": {}}
 
 
 # ── 路由函数 ──────────────────────────────────────────────

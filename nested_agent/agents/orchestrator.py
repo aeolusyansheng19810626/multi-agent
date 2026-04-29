@@ -13,7 +13,47 @@ from nested_agent.prompts import (
 
 def orchestrator_node(state: dict) -> dict:
     requirement = state["requirement"]
+    req_lower = requirement.lower()
     
+    # 规则匹配：检测用户明确的排除意图
+    code_only_keywords = ["只要代码", "只需要代码", "仅代码", "只要实现", "只写实现", "only code", "code only"]
+    no_test_keywords = ["不需要测试", "不要测试", "无需测试", "no test", "without test"]
+    no_doc_keywords = ["不需要文档", "不要文档", "无需文档", "no doc", "without doc"]
+    
+    force_plan = None
+    force_reason = None
+    
+    # 检测"只要代码"类关键词
+    if any(kw in req_lower for kw in code_only_keywords):
+        force_plan = {"coder": True, "tester": False, "documenter": False}
+        force_reason = "用户明确要求只要代码，跳过测试和文档生成"
+    else:
+        # 检测单独的排除项
+        exclude_tester = any(kw in req_lower for kw in no_test_keywords)
+        exclude_documenter = any(kw in req_lower for kw in no_doc_keywords)
+        
+        if exclude_tester or exclude_documenter:
+            force_plan = {
+                "coder": True,
+                "tester": not exclude_tester,
+                "documenter": not exclude_documenter
+            }
+            reasons = []
+            if exclude_tester:
+                reasons.append("跳过测试")
+            if exclude_documenter:
+                reasons.append("跳过文档")
+            force_reason = f"用户明确要求{', '.join(reasons)}"
+    
+    # 如果有强制规划，直接返回
+    if force_plan:
+        return {
+            "plan": force_plan,
+            "plan_reason": force_reason,
+            "model_used_by": {"orchestrator": "rule-based"},
+        }
+    
+    # 否则调用LLM进行智能规划
     messages = [
         SystemMessage(content=ORCHESTRATOR_PLAN_SYSTEM_PROMPT),
         HumanMessage(content=ORCHESTRATOR_PLAN_HUMAN_PROMPT.format(requirement=requirement)),
@@ -33,9 +73,9 @@ def orchestrator_node(state: dict) -> dict:
         plan = data.get("plan", {})
         reason = data.get("reason", "未提供理由")
     except Exception:
-        # 兜底：如果解析失败，默认全部启用
-        plan = {"coder": True, "tester": True, "documenter": True}
-        reason = "解析规划 JSON 失败，采用默认全量方案。"
+        # 兜底：简单任务默认只要代码
+        plan = {"coder": True, "tester": False, "documenter": False}
+        reason = "解析规划 JSON 失败，采用保守方案（仅代码）。"
 
     return {
         "plan": plan,

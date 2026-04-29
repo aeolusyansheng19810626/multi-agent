@@ -46,5 +46,5 @@ def finalizer_node(state: dict) -> dict:
 
     return {
         "final_output": result.content,
-        "model_used_by": {"finalizer": result.model_used},
+        "model_used_by": {"finalizer": result.model_used, "ha_finalizer": result.model_used},
     }
