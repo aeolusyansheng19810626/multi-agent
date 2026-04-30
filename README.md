@@ -1,4 +1,16 @@
-# Multi-Agent Platform
+---
+title: Multi-Agent AI Tools
+emoji: 🤖
+colorFrom: blue
+colorTo: purple
+sdk: streamlit
+sdk_version: "1.56.0"
+python_version: "3.11"
+app_file: app.py
+pinned: false
+---
+
+# Multi-Agent AI Tools
 
 > 基于 **LangGraph + Groq + Streamlit** 的多智能体协作平台，支持8种编排模式，现代化紫色主题UI，实时展示执行过程。
 
