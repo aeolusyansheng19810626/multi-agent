@@ -181,7 +181,7 @@ I18N = {
 
 I18N["ja"] = {
     **I18N["zh"],
-    "app_title": "ﾏﾙﾁｴｰｼﾞｪﾝﾄ協調分析ﾌﾟﾗｯﾄﾌｫｰﾑ",
+    "app_title": "Multi-Agent 分析ﾌﾟﾗｯﾄﾌｫｰﾑ",
     "app_subtitle": "LangGraph + Groq ﾍﾞｰｽのｲﾝﾃﾘｼﾞｪﾝﾄ協調ｼｽﾃﾑ",
     "sidebar_label": "編成ﾓｰﾄﾞ",
     "sidebar_hint": "ｶｰﾄﾞをｸﾘｯｸして協調方式を選択 👇",
@@ -1037,6 +1037,18 @@ for mode in MODES:
     if st.sidebar.button("", key=f"nav_btn_{mode['key']}", use_container_width=True):
         st.session_state.selected_mode_key = mode["key"]
         st.rerun()
+
+st.sidebar.markdown(
+    """
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid #E5E7EB;text-align:center;color:#9CA3AF;font-size:13px;line-height:1.8;">
+        Built by <span style="color:#6366F1;font-weight:500;">Sheng Yan</span>
+        &nbsp;·&nbsp;
+        <a href="https://github.com/aeolusyansheng19810626" target="_blank"
+           style="color:#6366F1;text-decoration:none;font-weight:500;">GitHub</a>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 # ── 获取当前选中的模式数据 ──────────────────────────────
 current_mode = next((m for m in MODES if m["key"] == st.session_state.selected_mode_key), MODES[0])
