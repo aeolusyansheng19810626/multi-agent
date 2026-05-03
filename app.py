@@ -487,49 +487,49 @@ st.markdown(
     /* 顶部导航栏 */
     .top-navbar {
         background: linear-gradient(135deg, #5B21B6 0%, #7C3AED 50%, #6C63FF 100%);
-        padding: 14px 40px;
+        padding: 0 32px;
+        height: 60px;
         margin: -8px -80px 30px -80px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        flex-wrap: wrap;
         gap: 12px;
     }
 
     .navbar-left {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 12px;
         flex: 1;
-        min-width: 300px;
+        min-width: 0;
     }
 
     .navbar-logo {
-        font-size: 32px;
+        font-size: 24px;
     }
 
     .navbar-title {
         color: #FFFFFF !important;
-        font-size: 22px;
+        font-size: 15px;
         font-weight: 700;
         margin: 0;
-        line-height: 1.3;
-        word-break: keep-all;
+        line-height: 1.2;
+        white-space: nowrap;
     }
 
     .navbar-right {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 13px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 11.5px;
         font-weight: 400;
-        line-height: 1.4;
-        max-width: 400px;
+        line-height: 1.3;
+        white-space: nowrap;
     }
 
     .navbar-actions {
         display: flex;
         align-items: center;
-        gap: 18px;
+        gap: 12px;
         flex-shrink: 0;
     }
 
