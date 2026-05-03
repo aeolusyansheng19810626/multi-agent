@@ -486,7 +486,7 @@ st.markdown(
     
     /* 顶部导航栏 */
     .top-navbar {
-        background: linear-gradient(135deg, #1D4ED8 0%, #3B82F6 100%);
+        background: linear-gradient(135deg, #5B21B6 0%, #7C3AED 50%, #6C63FF 100%);
         padding: 14px 40px;
         margin: -8px -80px 30px -80px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
