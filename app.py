@@ -856,7 +856,7 @@ st.markdown(
     f"""
     <div class="top-navbar">
         <div class="navbar-left">
-            <h1 class="navbar-title">{t("app_title")}</h1>
+            <p class="navbar-title">{t("app_title")}</p>
         </div>
         <div class="navbar-actions">
             <div class="navbar-right">{t("app_subtitle")}</div>
