@@ -1,24 +1,24 @@
 """
-Multi-Agent 协作分析平台
-支持 6 种 Agent 协作模式：
-1. Supervisor Pipeline（监督者流水线）
-2. Conditional Branch（条件分支）
-3. Loop Feedback（循环反馈）
-4. Parallel Review（并行审查）
-5. Debate（辩论对抗）
-6. Nested Agent（嵌套 Agent）
-7. Hybrid A（混合模式 A：并行生成 + 循环质检 + 条件分支）
-8. Hybrid B（混合模式 B：辩论 + 嵌套 Agent）
+Multi-Agent協調分析プラットフォーム
+8種類のエージェント協調モード対応：
+1. Supervisor Pipeline（シーケンシャルパイプライン）
+2. Conditional Branch（条件分岐）
+3. Loop Feedback（ループフィードバック）
+4. Parallel Review（並列実行）
+5. Debate（ディベートモード）
+6. Nested Agent（ネストエージェント）
+7. Hybrid A（ハイブリッドモードA：並列生成 + ループ品質チェック + 条件分岐）
+8. Hybrid B（ハイブリッドモードB：ディベート + ネストエージェント）
 """
 
 import streamlit as st
 import sys
 import os
 
-# ── 路径设置 ───────────────────────────────────────────
+# パス設定
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# ── 页面配置 ───────────────────────────────────────────
+# ページ設定
 st.set_page_config(
     page_title="Multi-Agent 协作分析平台",
     page_icon="🤖",
@@ -465,9 +465,9 @@ I18N["en"] = {
     "hybrid_b.help": "Enter an architecture proposal. Pro/Con sides call child Agents for data before debating<br><span style=\"color:#10b981\">🟢 Pro</span> → ⚡Performance + 💰Cost Agent<br><span style=\"color:#ef4444\">🔴 Con</span> → 🔒Security + 🔧Maintainability Agent<br>⚖️ Judge gives the final recommendation",
 }
 
-lang_from_url = st.query_params.get("lang", "zh")
+lang_from_url = st.query_params.get("lang", "en")
 if lang_from_url not in LANGUAGES:
-    lang_from_url = "zh"
+    lang_from_url = "en"
 st.session_state.ui_language = lang_from_url
 
 
@@ -475,16 +475,16 @@ def t(key: str, **kwargs) -> str:
     text = I18N.get(st.session_state.ui_language, I18N["zh"]).get(key, I18N["zh"].get(key, key))
     return text.format(**kwargs) if kwargs else text
 
-# ── 全局 CSS ───────────────────────────────────────────
+# グローバルCSS
 st.markdown(
     """
     <style>
-    /* 全局样式 */
+    /* グローバルスタイル */
     .stApp {
         background-color: #F8F9FA;
     }
     
-    /* 顶部导航栏 */
+    /* トップナビゲーションバー */
     .top-navbar {
         background: linear-gradient(135deg, #5B21B6 0%, #7C3AED 50%, #6C63FF 100%);
         padding: 0 32px;
@@ -786,14 +786,14 @@ st.markdown(
         color: #059669;
     }
     
-    /* 隐藏 Streamlit 默认元素 */
+    /* Streamlitデフォルト要素を非表示 */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     [data-testid="stToolbar"] {visibility: hidden; height: 0 !important; min-height: 0 !important;}
     [data-testid="stDecoration"] {visibility: hidden; height: 0 !important;}
     header[data-testid="stHeader"] {height: 0 !important; min-height: 0 !important;}
     
-    /* 侧边栏样式 - 与主区域一致的浅色背景 */
+    /* サイドバースタイル - メインエリアと統一した明るい背景 */
     [data-testid="stSidebar"] {
         background-color: #F8F9FA !important;
         border-right: 1px solid #E5E7EB !important;
@@ -805,7 +805,7 @@ st.markdown(
     }
     
     
-    /* 主内容区域 */
+    /* メインコンテンツエリア */
     .main .block-container {
         padding-top: 0 !important;
         padding-bottom: 2rem;
@@ -815,25 +815,25 @@ st.markdown(
         padding-top: 0 !important;
     }
     
-    /* 信息提示框 */
+    /* 情報メッセージボックス */
     .stAlert {
         border-radius: 8px !important;
         border-left: 4px solid #6C63FF !important;
     }
     
-    /* 成功提示框 */
+    /* 成功メッセージボックス */
     .stSuccess {
         background-color: #D1FAE5 !important;
         border-left-color: #10B981 !important;
     }
     
-    /* 警告提示框 */
+    /* 警告メッセージボックス */
     .stWarning {
         background-color: #FEF3C7 !important;
         border-left-color: #F59E0B !important;
     }
     
-    /* 错误提示框 */
+    /* エラーメッセージボックス */
     .stError {
         background-color: #FEE2E2 !important;
         border-left-color: #EF4444 !important;
@@ -843,7 +843,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ── 顶部导航栏 ───────────────────────────────────────────
+# トップナビゲーションバー
 language_options_html = ''.join(
     f"<a href='?lang={code}' target='_self' class=\"language-option {'active' if code == st.session_state.ui_language else ''}\" "
     f"style='text-decoration: none; display: grid; grid-template-columns: 36px 1fr 24px; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 8px; color: #111827; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;'>"
@@ -873,7 +873,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ── 侧边栏：模式选择 ──────────────────────────────────
+# サイドバー：モード選択
 st.sidebar.markdown(f"""
 <div style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #E5E7EB;">
     <div style="font-size: 12px; color: #9CA3AF; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 5px;">{t("sidebar_label")}</div>
@@ -892,11 +892,11 @@ MODES = [
     {"key": "hybrid_b", "icon": "🎭", "label": t("mode.hybrid_b"), "desc": t("mode.hybrid_b_desc"), "status": "Coming"},
 ]
 
-# 初始化选中的模式
+# 選択中のモードを初期化
 if "selected_mode_key" not in st.session_state:
     st.session_state.selected_mode_key = "supervisor_pipeline"
 
-# 注入侧边栏核心 CSS
+# サイドバーコアCSSを注入
 st.sidebar.markdown(
     """
     <style>
@@ -1016,11 +1016,11 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-# 渲染卡片循环
+# カードレンダリングループ
 for mode in MODES:
     is_selected = st.session_state.selected_mode_key == mode["key"]
     
-    # 1. 渲染视觉外观
+    # 1. ビジュアル外観をレンダリング
     st.sidebar.markdown(f"""
         <div class="mode-card-visual {'selected' if is_selected else ''}">
             <div class="card-row-1">
@@ -1033,7 +1033,7 @@ for mode in MODES:
         </div>
     """, unsafe_allow_html=True)
     
-    # 2. 渲染透明按钮覆盖层
+    # 2. 透明ボタンオーバーレイをレンダリング
     if st.sidebar.button("", key=f"nav_btn_{mode['key']}", use_container_width=True):
         st.session_state.selected_mode_key = mode["key"]
         st.rerun()
@@ -1050,11 +1050,11 @@ st.sidebar.markdown(
     unsafe_allow_html=True,
 )
 
-# ── 获取当前选中的模式数据 ──────────────────────────────
+# 現在選択中のモードデータを取得
 current_mode = next((m for m in MODES if m["key"] == st.session_state.selected_mode_key), MODES[0])
 selected_mode_label = f"{current_mode['icon']} {current_mode['label']}"
 
-# ── Agent 图标和名称映射 ─────────────────────────────
+# エージェントアイコンと名前のマッピング
 AGENT_ICONS = {
     "supervisor": "🎯",
     "requirement": "📋",
@@ -1112,10 +1112,10 @@ AGENT_NAMES = {
     "judge_agent": t("agent.judge"),
 }
 
-# ── 通用组件 ───────────────────────────────────────────
+# 共通コンポーネント
 
 def _status_badge(status: str) -> str:
-    """返回状态徽章 HTML（使用新的紫色主题样式）"""
+    """ステータスバッジHTMLを返す（新しいパープルテーマスタイル使用）"""
     badges = {
         "pending": f'<span class="status-badge status-pending">{t("status_pending")}</span>',
         "running": f'<span class="status-badge status-running">{t("status_running")}</span>',
@@ -1125,7 +1125,7 @@ def _status_badge(status: str) -> str:
 
 
 def _render_coming_soon(label: str, desc: str):
-    """渲染“即将推出”占位页"""
+    """「近日公開」プレースホルダーページをレンダリング"""
     st.markdown(
         f"""
         <div style="text-align:center;padding:80px 20px;color:#AAAAAA;">
@@ -1140,7 +1140,7 @@ def _render_coming_soon(label: str, desc: str):
 
 
 def _remember_text_area(widget_key: str, saved_key: str):
-    """Keep text_area content when its widget is temporarily unmounted."""
+    """ウィジェットが一時的にアンマウントされた際にtext_areaの内容を保持"""
     if saved_key not in st.session_state:
         st.session_state[saved_key] = ""
     if widget_key not in st.session_state:
@@ -1148,9 +1148,9 @@ def _remember_text_area(widget_key: str, saved_key: str):
     return lambda: st.session_state.__setitem__(saved_key, st.session_state.get(widget_key, ""))
 
 
-# ── Supervisor Pipeline 模式 ────────────────────────────
+# Supervisor Pipelineモード
 def _render_supervisor_pipeline():
-    """Supervisor Pipeline 模式渲染函数"""
+    """Supervisor Pipelineモードレンダリング関数"""
     from supervisor_pipeline import stream_supervisor
 
     AGENT_ORDER = ["analyst", "architect", "coder", "reviewer"]
@@ -1243,7 +1243,7 @@ def _render_supervisor_pipeline():
         )
 
 
-# ── Conditional Branch 模式 ─────────────────────────────
+# Conditional Branchモード
 def _render_conditional_branch():
     from conditional_branch import stream_conditional
 
@@ -1387,7 +1387,7 @@ def _render_conditional_branch():
             )
 
 
-# ── Loop Feedback 模式 ─────────────────────────────────
+# Loop Feedbackモード
 def _render_loop_feedback():
     from loop_feedback import stream_loop
 
@@ -1510,7 +1510,7 @@ def _render_loop_feedback():
             )
 
 
-# ── Parallel Review 模式 ────────────────────────────────
+# Parallel Reviewモード
 def _render_parallel_review():
     """Parallel Review 模式渲染函数 - 并行代码审查"""
     from parallel import stream_parallel
@@ -1601,7 +1601,7 @@ def _render_parallel_review():
         )
 
 
-# ── Debate 模式 ────────────────────────────────────────
+# Debateモード
 def _render_debate():
     """Debate 模式渲染函数 - 多 Agent 对抗辩论"""
     from debate import stream_debate
@@ -1711,7 +1711,7 @@ def _render_debate():
         )
 
 
-# ── Nested Agent 模式 ──────────────────────────────────
+# Nested Agentモード
 def _render_nested_agent():
     """Nested Agent 模式渲染函数"""
     from nested_agent import stream_nested
@@ -1840,7 +1840,7 @@ def _render_nested_agent():
         )
 
 
-# ── Hybrid A 模式 ───────────────────────────────────────
+# Hybrid Aモード
 def _render_hybrid_a():
     """Hybrid A 模式渲染函数 - 混合模式 A：并行生成 + 循环质检 + 条件分支"""
     from hybrid_a import stream_hybrid_a
@@ -1871,25 +1871,25 @@ def _render_hybrid_a():
         st.session_state.ha_is_running = False
 
     def _render_ha_results():
-        """渲染混合模式A的完整结果"""
-        # 阶段1：代码生成与质检循环
-        st.markdown("### 📝 阶段1：代码生成与质检")
+        """ハイブリッドモードAの完全な結果をレンダリング"""
+        # フェーズ1：コード生成と品質チェックループ
+        st.markdown("### 📝 フェーズ1：コード生成と品質チェック")
         for i, iter_data in enumerate(st.session_state.ha_iterations):
             iter_num = i + 1
             code = iter_data.get("code", "")
             status = iter_data.get("reviewer_status")
             feedback = iter_data.get("reviewer_feedback", "")
             
-            # 代码生成
-            with st.expander(f"💻 代码生成（第{iter_num}轮）", expanded=(i == len(st.session_state.ha_iterations) - 1)):
+            # コード生成
+            with st.expander(f"💻 コード生成（第{iter_num}ラウンド）", expanded=(i == len(st.session_state.ha_iterations) - 1)):
                 model = st.session_state.ha_model_used.get("ha_coder", "")
                 if model:
                     st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
                 st.code(code, language="python")
             
-            # 第1轮后显示并行生成（测试+文档）
+            # 第1ラウンド後に並列生成を表示（テスト+ドキュメント）
             if i == 0 and st.session_state.ha_parallel_results:
-                st.markdown("#### 🔀 并行生成（测试 + 文档）")
+                st.markdown("#### 🔀 並列生成（テスト + ドキュメント）")
                 
                 if "tester" in st.session_state.ha_parallel_results:
                     with st.expander("🧪 单元测试", expanded=False):
@@ -1905,7 +1905,7 @@ def _render_hybrid_a():
                             st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
                         st.markdown(st.session_state.ha_parallel_results["documenter"])
             
-            # 质检结果
+            # 品質チェック結果
             if status:
                 if status == "pass":
                     with st.expander(f"✅ 代码质检通过（第{iter_num}轮）", expanded=False):
@@ -1920,9 +1920,9 @@ def _render_hybrid_a():
                             st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
                         st.error(f"**反馈**: {feedback}")
         
-        # 阶段2：复杂度分析与安全审查
+        # フェーズ2：複雑度分析とセキュリティレビュー
         if st.session_state.ha_complexity:
-            st.markdown("### 🔍 阶段2：复杂度分析与安全审查")
+            st.markdown("### 🔍 フェーズ2：複雑度分析とセキュリティレビュー")
             complexity = st.session_state.ha_complexity
             model = st.session_state.ha_model_used.get("ha_complexity", "")
             
@@ -1935,7 +1935,7 @@ def _render_hybrid_a():
                 if model:
                     st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
         
-        # 安全审查（如果有）
+        # セキュリティレビュー（存在する場合）
         if st.session_state.ha_security_result:
             with st.expander("🔒 安全审查报告", expanded=False):
                 model = st.session_state.ha_model_used.get("ha_security", "")
@@ -1943,9 +1943,9 @@ def _render_hybrid_a():
                     st.markdown(f'<span class="model-badge">🧠 {model}</span>', unsafe_allow_html=True)
                 st.markdown(st.session_state.ha_security_result)
         
-        # 阶段3：最终交付
+        # フェーズ3：最終デリバリー
         if st.session_state.ha_final:
-            st.markdown("### 📦 阶段3：最终交付")
+            st.markdown("### 📦 フェーズ3：最終デリバリー")
             with st.expander("项目交付报告", expanded=True):
                 model = st.session_state.ha_model_used.get("ha_finalizer", "")
                 if model:
@@ -1964,7 +1964,7 @@ def _render_hybrid_a():
         st.session_state.ha_is_running = True
 
         for node_name, state_update in stream_hybrid_a(req_input.strip()):
-            # 跳过中转节点或空更新
+            # 中継ノードまたは空の更新をスキップ
             if not state_update or node_name == "dispatcher":
                 continue
                 
@@ -2009,7 +2009,7 @@ def _render_hybrid_a():
                 if final_output:
                     st.session_state.ha_final = final_output
 
-            # 实时渲染当前状态
+            # 現在の状態をリアルタイムレンダリング
             with results_container.container():
                 _render_ha_results()
 
@@ -2033,12 +2033,12 @@ def _render_hybrid_a():
         )
 
 
-# ── Hybrid B 模式 ───────────────────────────────────────
+# Hybrid Bモード
 def _render_hybrid_b():
     """Hybrid B 模式渲染函数 - 辩论 + 嵌套 Agent"""
     from hybrid_b import stream_hybrid_b
 
-    # ── 输入区 ───────────────────────────────────────────
+    # 入力エリア
     st.markdown(t("hybrid_b.title"))
     col_input, col_btn = st.columns([5, 1])
     with col_input:
@@ -2058,20 +2058,20 @@ def _render_hybrid_b():
 
     st.divider()
 
-    # ── session state 初始化 ───────────────────────────────
+    # session state初期化
     for key, default in [
         ("hb_history", []),
         ("hb_conclusion", None),
         ("hb_model_used", {}),
         ("hb_is_running", False),
-        ("hb_sub_agent_status", None),  # 子Agent状态
+        ("hb_sub_agent_status", None),  # サブエージェントステータス
     ]:
         if key not in st.session_state:
             st.session_state[key] = default
 
     path_container = st.empty()
 
-    # ── 执行逻辑 ──────────────────────────────────────────
+    # 実行ロジック
     if run_btn and scheme_input.strip():
         st.session_state.hb_history = []
         st.session_state.hb_conclusion = None
@@ -2080,11 +2080,11 @@ def _render_hybrid_b():
         st.session_state.hb_sub_agent_status = None
 
         for node_name, state_update in stream_hybrid_b(scheme_input.strip(), max_rounds=rounds):
-            # 更新模型信息
+            # モデル情報を更新
             model_map = state_update.get("model_used_by", {})
             st.session_state.hb_model_used.update(model_map)
 
-            # 跟踪子Agent状态
+            # サブエージェントステータスを追跡
             if node_name == "pro_orchestrator":
                 current_round = state_update.get("current_round", 1)
                 st.session_state.hb_sub_agent_status = {
@@ -2122,18 +2122,18 @@ def _render_hybrid_b():
                 if st.session_state.hb_sub_agent_status:
                     st.session_state.hb_sub_agent_status["done"] = True
 
-            # 处理辩论历史
+            # ディベート履歴を処理
             if node_name in ["pro_summarizer", "con_summarizer"]:
                 history_items = state_update.get("debate_history", [])
                 st.session_state.hb_history.extend(history_items)
 
-            # 处理最终结论
+            # 最終結論を処理
             if node_name == "judge_agent":
                 st.session_state.hb_conclusion = state_update.get("final_conclusion", "")
 
-            # 动态渲染
+            # 動的レンダリング
             with path_container.container():
-                # 显示子Agent召唤状态
+                # サブエージェント呼び出しステータスを表示
                 status = st.session_state.hb_sub_agent_status
                 if status and not status.get("done"):
                     side_icon = "🟢" if status["side"] == "pro" else "🔴"
@@ -2153,7 +2153,7 @@ def _render_hybrid_b():
                         with col2:
                             st.caption(t("hybrid_b.call_maint", status=status.get("maintainability", "⏳")))
 
-                # 显示辩论历史
+                # ディベート履歴を表示
                 for i, item in enumerate(st.session_state.hb_history):
                     role = item["role"]
                     round_num = item["round"]
@@ -2164,13 +2164,13 @@ def _render_hybrid_b():
                     is_last = (i == len(st.session_state.hb_history) - 1) and not st.session_state.hb_conclusion
 
                     with st.expander(f"{icon} {name}", expanded=is_last):
-                        # 显示模型信息
+                        # モデル情報を表示
                         model_key = "pro_summarizer" if role == "pro" else "con_summarizer"
                         model_name = st.session_state.hb_model_used.get(model_key, "")
                         if model_name:
                             st.markdown(f'<span class="model-badge">🧠 {model_name}</span>', unsafe_allow_html=True)
 
-                        # 显示子Agent数据
+                        # サブエージェントデータを表示
                         if role == "pro":
                             if item.get("performance_result"):
                                 st.markdown(t("hybrid_b.perf_data"))
@@ -2186,11 +2186,11 @@ def _render_hybrid_b():
                                 st.markdown(t("hybrid_b.maint_data"))
                                 st.caption(item["maintainability_result"][:500] + "...")
 
-                        # 显示论点
+                        # 論点を表示
                         st.markdown(t("hybrid_b.argument"))
                         st.markdown(content)
 
-                # 显示裁判裁决
+                # 審判の判定を表示
                 if st.session_state.hb_conclusion:
                     st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
                     with st.expander(t("debate.verdict"), expanded=True):
@@ -2258,7 +2258,7 @@ def _render_hybrid_b():
         )
 
 
-# ── 路由入口（函数定义后执行）───────────────────────────
+# ルーティングエントリーポイント（関数定義後に実行）
 mode_key = current_mode["key"]
 if mode_key == "supervisor_pipeline":
     _render_supervisor_pipeline()

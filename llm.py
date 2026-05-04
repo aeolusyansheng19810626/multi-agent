@@ -1,6 +1,6 @@
 """
-LLM 统一调用层 — 模型降级 Fallback 机制
-所有 Agent 统一通过 call_with_fallback() 调用模型，不直接实例化 LLM。
+LLM統一呼び出し層 - モデルフォールバック機構
+全エージェントはcall_with_fallback()経由でモデルを呼び出し、直接LLMをインスタンス化しない
 """
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class LLMResponse:
-    """封装 LLM 调用结果，包含内容和实际使用的模型名"""
+    """LLM呼び出し結果をカプセル化、コンテンツと実際に使用されたモデル名を含む"""
     content: str
     model_used: str
 
@@ -30,20 +30,20 @@ def call_with_fallback(
     max_tokens: int | None = None,
 ) -> LLMResponse:
     """
-    依次尝试降级列表中的模型，成功则返回结果并记录实际使用的模型名，
-    失败则自动尝试下一个。
+    フォールバックリストのモデルを順次試行し、成功したら結果を返して実際に使用したモデル名を記録、
+    失敗したら次のモデルを自動的に試行
 
     Args:
-        messages: LangChain 消息列表 (SystemMessage + HumanMessage)
-        fallback_list: 模型降级列表，默认使用 config.MODEL_FALLBACK_LIST
-        temperature: 覆盖默认温度
-        max_tokens: 覆盖默认 max_tokens
+        messages: LangChainメッセージリスト (SystemMessage + HumanMessage)
+        fallback_list: モデルフォールバックリスト、デフォルトはconfig.MODEL_FALLBACK_LIST
+        temperature: デフォルト温度を上書き
+        max_tokens: デフォルトmax_tokensを上書き
 
     Returns:
-        LLMResponse: 包含 content 和 model_used
+        LLMResponse: contentとmodel_usedを含む
 
     Raises:
-        RuntimeError: 所有模型均调用失败
+        RuntimeError: 全モデルの呼び出しが失敗
     """
     models = fallback_list or MODEL_FALLBACK_LIST
     temp = temperature if temperature is not None else LLM_TEMPERATURE
@@ -53,7 +53,7 @@ def call_with_fallback(
 
     for model_name in models:
         try:
-            logger.info(f"尝试调用模型: {model_name}")
+            logger.info(f"モデル呼び出し試行: {model_name}")
 
             llm = ChatGroq(
                 api_key=GROQ_API_KEY,
@@ -64,7 +64,7 @@ def call_with_fallback(
 
             response = llm.invoke(messages)
 
-            logger.info(f"✓ 模型调用成功: {model_name}")
+            logger.info(f"✓ モデル呼び出し成功: {model_name}")
             return LLMResponse(
                 content=response.content,
                 model_used=model_name,
@@ -73,11 +73,11 @@ def call_with_fallback(
         except Exception as e:
             error_msg = f"{type(e).__name__}: {str(e)[:200]}"
             errors.append((model_name, error_msg))
-            logger.warning(f"✗ 模型 {model_name} 调用失败: {error_msg}")
+            logger.warning(f"✗ モデル {model_name} 呼び出し失敗: {error_msg}")
             continue
 
-    # 所有模型均失败
+    # 全モデル失敗
     error_details = "\n".join(f"  - {m}: {e}" for m, e in errors)
     raise RuntimeError(
-        f"所有 {len(models)} 个模型均调用失败:\n{error_details}"
+        f"全 {len(models)} モデルの呼び出しが失敗:\n{error_details}"
     )

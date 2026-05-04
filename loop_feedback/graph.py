@@ -14,7 +14,7 @@ class LoopState(TypedDict):
     model_used_by: Optional[Dict[str, str]]
 
 def review_condition(state: LoopState) -> str:
-    """决定下一步是重试还是结束"""
+    """次のステップがリトライか終了かを決定"""
     status = state.get("status", "fail")
     iteration = state.get("iteration", 0)
     

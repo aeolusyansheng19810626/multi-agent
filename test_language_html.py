@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Test language switching HTML generation
+# 言語切り替えHTML生成テスト
 LANGUAGES = {
     "zh": {"short": "CN", "name": "Simplified Chinese"},
     "ja": {"short": "JP", "name": "Japanese"},
@@ -8,7 +8,7 @@ LANGUAGES = {
 
 current_language = "zh"
 
-# Current version (broken)
+# 現在のバージョン（壊れている）
 print("=== Current Version (BROKEN) ===")
 language_options_html = ''.join(
     f'<div class="language-option {"active" if code == current_language else ""}" '
@@ -20,7 +20,7 @@ language_options_html = ''.join(
 print(language_options_html)
 print()
 
-# Fix version 1: Escaped double quotes
+# 修正版1: ダブルクォートをエスケープ
 print("=== Fix Version 1: Escaped quotes ===")
 language_options_html = ''.join(
     f'<div class="language-option {"active" if code == current_language else ""}" '
@@ -32,7 +32,7 @@ language_options_html = ''.join(
 print(language_options_html)
 print()
 
-# Fix version 2: Single quotes for onclick
+# 修正版2: onclickにシングルクォート使用
 print("=== Fix Version 2: Single quotes ===")
 language_options_html = ''.join(
     f"<div class=\"language-option {'active' if code == current_language else ''}\" "
@@ -42,5 +42,3 @@ language_options_html = ''.join(
     for code, meta in LANGUAGES.items()
 )
 print(language_options_html)
-
-# Made with Bob

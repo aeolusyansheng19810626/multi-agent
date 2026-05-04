@@ -1,6 +1,6 @@
 """
-Nested Agent - LangGraph 图定义
-实现 Orchestrator -> [Coder -> Tester, Documenter] -> Finalizer 的嵌套调用。
+Nested Agent - LangGraphグラフ定義
+Orchestrator -> [Coder -> Tester, Documenter] -> Finalizerのネスト呼び出しを実装
 """
 import json
 from typing import TypedDict, Optional, List, Dict, Annotated
@@ -13,30 +13,30 @@ from nested_agent.agents.tester import tester_node
 from nested_agent.agents.documenter import documenter_node
 
 
-# ── Reducer 定义 ──────────────────────────────────────────
+# Reducer定義
 def merge_dicts(left: Optional[dict], right: Optional[dict]) -> dict:
     if left is None: left = {}
     if right is None: right = {}
     return {**left, **right}
 
 
-# ── State 定义 ────────────────────────────────────────────
+# State定義
 class NestedState(TypedDict):
-    requirement: str                              # 原始需求
-    plan: Optional[Dict[str, bool]]               # Orchestrator 的规划结果
-    plan_reason: Optional[str]                    # 规划理由
+    requirement: str                              # 元の要件
+    plan: Optional[Dict[str, bool]]               # Orchestratorの計画結果
+    plan_reason: Optional[str]                    # 計画理由
     
-    coder_output: Optional[str]                   # Coder 产出
-    tester_output: Optional[str]                  # Tester 产出
-    documenter_output: Optional[str]              # Documenter 产出
+    coder_output: Optional[str]                   # Coder出力
+    tester_output: Optional[str]                  # Tester出力
+    documenter_output: Optional[str]              # Documenter出力
     
-    final_output: Optional[str]                   # 最终整合结果
+    final_output: Optional[str]                   # 最終統合結果
     model_used_by: Annotated[dict, merge_dicts]
 
 
-# ── 路由函数 ──────────────────────────────────────────────
+# ルーティング関数
 def route_after_plan(state: NestedState):
-    """Orchestrator 规划后，决定是否进入 Coder 阶段"""
+    """Orchestrator計画後、Coderフェーズに入るかを決定"""
     plan = state.get("plan", {})
     if plan.get("coder"):
         return "coder_agent"
@@ -45,7 +45,7 @@ def route_after_plan(state: NestedState):
 
 def executor_dispatcher(state: NestedState) -> List[Send]:
     """
-    核心调度逻辑：根据规划并行召唤 Tester 和 Documenter。
+    コア調整ロジック：計画に基づいてTesterとDocumenterを並列呼び出し
     """
     plan = state.get("plan", {})
     sends = []
@@ -59,44 +59,44 @@ def executor_dispatcher(state: NestedState) -> List[Send]:
     return sends if sends else [Send("finalizer_agent", state)]
 
 
-# ── 构建 StateGraph ───────────────────────────────────────
+# StateGraphを構築
 def build_graph() -> StateGraph:
     workflow = StateGraph(NestedState)
 
-    # 添加节点
+    # ノードを追加
     workflow.add_node("orchestrator_agent", orchestrator_node)
     workflow.add_node("coder_agent", coder_node)
     workflow.add_node("tester_agent", tester_node)
     workflow.add_node("documenter_agent", documenter_node)
     workflow.add_node("finalizer_agent", finalizer_node)
 
-    # 设置入口
+    # エントリーポイントを設定
     workflow.set_entry_point("orchestrator_agent")
 
-    # 1. 规划后路由
+    # 1. 計画後のルーティング
     workflow.add_conditional_edges(
         "orchestrator_agent",
         route_after_plan,
         {
             "coder_agent": "coder_agent",
-            "executor_dispatcher": "finalizer_agent" # 如果什么都不需要，直接去最终化 (虽然逻辑上不太可能)
+            "executor_dispatcher": "finalizer_agent" # 何も不要な場合は直接最終化へ（論理的にはあり得ないが）
         }
     )
     
-    # 2. Coder 完后去分发并行任务 (或者从 orchestrator 跳过 coder 直接去分发)
-    # 注意：LangGraph 不直接支持在 add_node 之外定义 dispatcher 函数作为 Send 目标
-    # 我们需要一个中转节点来执行 executor_dispatcher
+    # 2. Coder完了後に並列タスクを分配（またはorchestratorからcoderをスキップして直接分配）
+    # 注意：LangGraphはadd_node外でdispatcher関数をSend対象として定義することを直接サポートしない
+    # executor_dispatcherを実行するための中継ノードが必要
     def dispatcher_node(state: NestedState):
-        return state # 仅仅作为中转
+        return state # 中継のみ
     
     workflow.add_node("dispatcher", dispatcher_node)
     
     workflow.add_edge("coder_agent", "dispatcher")
     
-    # 从 orchestrator 如果不需要 coder，也去 dispatcher
-    # (修改上面的 route_after_plan 逻辑中的目标为 dispatcher)
+    # orchestratorからcoderが不要な場合もdispatcherへ
+    # （上記のroute_after_planロジックの対象をdispatcherに変更）
     
-    # 重新定义路由逻辑以配合 dispatcher 节点
+    # dispatcherノードに合わせてルーティングロジックを再定義
     workflow.add_conditional_edges(
         "orchestrator_agent",
         lambda state: "coder_agent" if state.get("plan", {}).get("coder") else "dispatcher",
@@ -106,27 +106,27 @@ def build_graph() -> StateGraph:
         }
     )
 
-    # 3. 从 Dispatcher 扇出
+    # 3. Dispatcherからfan-out
     workflow.add_conditional_edges(
         "dispatcher",
         executor_dispatcher,
         ["tester_agent", "documenter_agent", "finalizer_agent"]
     )
 
-    # 4. 扇入：并行任务完成后汇聚到 finalizer
+    # 4. fan-in：並列タスク完了後にfinalizerへ集約
     workflow.add_edge("tester_agent", "finalizer_agent")
     workflow.add_edge("documenter_agent", "finalizer_agent")
 
-    # 5. 结束
+    # 5. 終了
     workflow.add_edge("finalizer_agent", END)
 
     return workflow.compile()
 
 
-# ── 流式执行函数 ──────────────────────────────────────────
+# ストリーミング実行関数
 def stream_nested(requirement: str):
     """
-    流式执行嵌套 Agent 工作流。
+    ネストエージェントワークフローをストリーミング実行
     """
     graph = build_graph()
     initial_state = {

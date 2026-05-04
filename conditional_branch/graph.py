@@ -12,16 +12,16 @@ class ConditionalState(TypedDict):
     requirement: str
     router_decision: Optional[Dict[str, str]]
     
-    # New Feature Path
+    # 新機能パス
     analysis_result: Optional[str]
     architecture_result: Optional[str]
     code_result: Optional[str]
     
-    # Code Review Path
+    # コードレビューパス
     review_result: Optional[str]
     optimization_result: Optional[str]
     
-    # Tech Question Path
+    # 技術質問パス
     research_result: Optional[str]
     advice_result: Optional[str]
     
@@ -29,7 +29,7 @@ class ConditionalState(TypedDict):
     model_used_by: Optional[Dict[str, str]]
 
 def route_condition(state: ConditionalState) -> str:
-    """路由决策函数，返回要走向的下一个节点名"""
+    """ルーティング決定関数、次に進むノード名を返す"""
     decision = state.get("router_decision", {})
     route = decision.get("route", "new_feature")
     
@@ -37,13 +37,13 @@ def route_condition(state: ConditionalState) -> str:
         return "cb_reviewer"
     elif route == "tech_question":
         return "cb_researcher"
-    else: # 默认 fallback 到 new_feature
+    else: # デフォルトでnew_featureにフォールバック
         return "cb_analyst"
 
 def build_graph() -> StateGraph:
     workflow = StateGraph(ConditionalState)
 
-    # 注册所有节点
+    # 全ノードを登録
     workflow.add_node("router", router_node)
     
     workflow.add_node("cb_analyst", cb_analyst_node)
@@ -56,10 +56,10 @@ def build_graph() -> StateGraph:
     workflow.add_node("cb_researcher", cb_researcher_node)
     workflow.add_node("cb_advisor", cb_advisor_node)
 
-    # 入口节点
+    # エントリーポイント
     workflow.set_entry_point("router")
 
-    # 条件分支
+    # 条件分岐
     workflow.add_conditional_edges(
         "router",
         route_condition,
@@ -70,16 +70,16 @@ def build_graph() -> StateGraph:
         }
     )
 
-    # Path 1: New Feature
+    # パス1: 新機能
     workflow.add_edge("cb_analyst", "cb_architect")
     workflow.add_edge("cb_architect", "cb_coder")
     workflow.add_edge("cb_coder", END)
 
-    # Path 2: Code Review
+    # パス2: コードレビュー
     workflow.add_edge("cb_reviewer", "cb_optimizer")
     workflow.add_edge("cb_optimizer", END)
 
-    # Path 3: Tech Question
+    # パス3: 技術質問
     workflow.add_edge("cb_researcher", "cb_advisor")
     workflow.add_edge("cb_advisor", END)
 
