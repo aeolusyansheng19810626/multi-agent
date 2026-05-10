@@ -6,6 +6,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 
 from llm import call_with_fallback
 from supervisor_pipeline.prompts.reviewer_prompt import REVIEWER_SYSTEM_PROMPT, REVIEWER_HUMAN_PROMPT
+from utils import get_language_instruction
 
 
 def reviewer_node(state: dict) -> dict:
@@ -14,9 +15,10 @@ def reviewer_node(state: dict) -> dict:
     读取 state["code_result"]，输出到 state["review_result"]。
     """
     code_result = state["code_result"]
+    lang_instruction = get_language_instruction(state.get("language", "en"))
 
     messages = [
-        SystemMessage(content=REVIEWER_SYSTEM_PROMPT),
+        SystemMessage(content=REVIEWER_SYSTEM_PROMPT + "\n" + lang_instruction),
         HumanMessage(
             content=REVIEWER_HUMAN_PROMPT.format(code_result=code_result)
         ),

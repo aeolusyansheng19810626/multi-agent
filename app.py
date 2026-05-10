@@ -1212,7 +1212,7 @@ def _render_supervisor_pipeline():
         st.session_state.sp_model_used = {}
         st.session_state.sp_is_running = True
 
-        for node_name, state_update in stream_supervisor(req_input.strip()):
+        for node_name, state_update in stream_supervisor(req_input.strip(), language=st.session_state.ui_language):
             st.session_state.sp_model_used.update(state_update.get("model_used_by", {}))
             if node_name in st.session_state.sp_agent_status:
                 result_key = RESULT_KEYS[node_name]
@@ -1301,7 +1301,7 @@ def _render_conditional_branch():
         st.session_state.cb_active_path = []
         st.session_state.cb_router_reason = t("conditional.routing")
 
-        for node_name, state_update in stream_conditional(requirement.strip()):
+        for node_name, state_update in stream_conditional(requirement.strip(), language=st.session_state.ui_language):
             st.session_state.cb_agent_status[node_name] = "done"
             result_key = RESULT_KEYS.get(node_name, "")
 
@@ -1418,7 +1418,7 @@ def _render_loop_feedback():
         st.session_state.lf_history = []
         st.session_state.lf_is_running = True
 
-        for node_name, state_update in stream_loop(requirement.strip()):
+        for node_name, state_update in stream_loop(requirement.strip(), language=st.session_state.ui_language):
             if node_name == "lf_coder":
                 iteration = state_update.get("iteration", 1)
                 code_result = state_update.get("code_result", "")

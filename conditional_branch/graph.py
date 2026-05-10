@@ -10,21 +10,22 @@ from conditional_branch.agents.workers import (
 
 class ConditionalState(TypedDict):
     requirement: str
+    language: str
     router_decision: Optional[Dict[str, str]]
-    
+
     # 新機能パス
     analysis_result: Optional[str]
     architecture_result: Optional[str]
     code_result: Optional[str]
-    
+
     # コードレビューパス
     review_result: Optional[str]
     optimization_result: Optional[str]
-    
+
     # 技術質問パス
     research_result: Optional[str]
     advice_result: Optional[str]
-    
+
     current_agent: Optional[str]
     model_used_by: Optional[Dict[str, str]]
 
@@ -85,10 +86,11 @@ def build_graph() -> StateGraph:
 
     return workflow.compile()
 
-def stream_conditional(requirement: str):
+def stream_conditional(requirement: str, language: str = "en"):
     graph = build_graph()
     initial_state: ConditionalState = {
         "requirement": requirement,
+        "language": language,
         "router_decision": None,
         "analysis_result": None,
         "architecture_result": None,

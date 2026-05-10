@@ -6,6 +6,8 @@ from conditional_branch.prompts.all_prompts import (
     RESEARCHER_SYSTEM_PROMPT, ADVISOR_SYSTEM_PROMPT,
     GENERIC_HUMAN_PROMPT
 )
+from utils import get_language_instruction
+
 
 def create_worker_node(agent_name: str, system_prompt: str, input_key: str, output_key: str):
     def node(state: dict) -> dict:
@@ -13,13 +15,14 @@ def create_worker_node(agent_name: str, system_prompt: str, input_key: str, outp
         if not input_text and input_key == "requirement":
             input_text = state.get("requirement", "")
 
+        lang_instruction = get_language_instruction(state.get("language", "en"))
         messages = [
-            SystemMessage(content=system_prompt),
+            SystemMessage(content=system_prompt + "\n" + lang_instruction),
             HumanMessage(content=GENERIC_HUMAN_PROMPT.format(input_text=input_text)),
         ]
-        
+
         result = call_with_fallback(messages)
-        
+
         return {
             output_key: result.content,
             "current_agent": agent_name,

@@ -24,7 +24,6 @@ ARCHITECT_SYSTEM_PROMPT = """\
 ## 风险与预案（Risks & Mitigations）
 列出架构层面的潜在风险及对应的预案。
 
-请使用中文输出，格式清晰，逻辑严谨。
 """
 
 ARCHITECT_HUMAN_PROMPT = """\

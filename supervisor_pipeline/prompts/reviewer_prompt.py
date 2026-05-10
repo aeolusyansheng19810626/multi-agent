@@ -34,7 +34,6 @@ REVIEWER_SYSTEM_PROMPT = """\
 ## 最佳实践建议（Best Practices）
 结合行业最佳实践，给出进一步优化的方向。
 
-请使用中文输出，格式清晰，逻辑严谨。
 """
 
 REVIEWER_HUMAN_PROMPT = """\

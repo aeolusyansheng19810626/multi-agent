@@ -6,6 +6,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 
 from llm import call_with_fallback
 from supervisor_pipeline.prompts.coder_prompt import CODER_SYSTEM_PROMPT, CODER_HUMAN_PROMPT
+from utils import get_language_instruction
 
 
 def coder_node(state: dict) -> dict:
@@ -14,9 +15,10 @@ def coder_node(state: dict) -> dict:
     读取 state["architecture_result"]，输出到 state["code_result"]。
     """
     architecture_result = state["architecture_result"]
+    lang_instruction = get_language_instruction(state.get("language", "en"))
 
     messages = [
-        SystemMessage(content=CODER_SYSTEM_PROMPT),
+        SystemMessage(content=CODER_SYSTEM_PROMPT + "\n" + lang_instruction),
         HumanMessage(
             content=CODER_HUMAN_PROMPT.format(architecture_result=architecture_result)
         ),

@@ -27,7 +27,6 @@ CODER_SYSTEM_PROMPT = """\
 - 使用类型注解
 - 添加必要的 docstring
 
-请使用中文注释，代码本身使用英文命名。
 """
 
 CODER_HUMAN_PROMPT = """\

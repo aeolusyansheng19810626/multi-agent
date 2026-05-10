@@ -17,6 +17,7 @@ from supervisor_pipeline.agents.reviewer import reviewer_node
 class SupervisorState(TypedDict):
     """贯穿整个图的共享状态"""
     requirement: str                          # 用户原始需求
+    language: str                            # 输出语言代码 (zh/ja/en)
     analysis_result: Optional[str]            # 需求分析输出
     architecture_result: Optional[str]        # 架构设计输出
     code_result: Optional[str]               # 编码输出
@@ -52,7 +53,7 @@ def build_graph() -> StateGraph:
 
 
 # ── 便捷执行函数 ──────────────────────────────────────────
-def run_supervisor(requirement: str) -> dict:
+def run_supervisor(requirement: str, language: str = "en") -> dict:
     """
     同步执行整个 Supervisor 工作流。
     返回最终 state，包含所有 Agent 的输出。
@@ -60,6 +61,7 @@ def run_supervisor(requirement: str) -> dict:
     graph = build_graph()
     initial_state: SupervisorState = {
         "requirement": requirement,
+        "language": language,
         "analysis_result": None,
         "architecture_result": None,
         "code_result": None,
@@ -71,7 +73,7 @@ def run_supervisor(requirement: str) -> dict:
     return result
 
 
-def stream_supervisor(requirement: str):
+def stream_supervisor(requirement: str, language: str = "en"):
     """
     流式执行 Supervisor 工作流。
     每个节点执行完毕后 yield (node_name, state_update)。
@@ -79,6 +81,7 @@ def stream_supervisor(requirement: str):
     graph = build_graph()
     initial_state: SupervisorState = {
         "requirement": requirement,
+        "language": language,
         "analysis_result": None,
         "architecture_result": None,
         "code_result": None,

@@ -18,7 +18,6 @@ ANALYST_SYSTEM_PROMPT = """\
 ## 名词术语表（Glossary）
 列出领域内的关键术语及其定义。
 
-请使用中文输出，格式清晰，逻辑严谨。
 """
 
 ANALYST_HUMAN_PROMPT = """\

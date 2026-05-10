@@ -6,6 +6,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 
 from llm import call_with_fallback
 from supervisor_pipeline.prompts.architect_prompt import ARCHITECT_SYSTEM_PROMPT, ARCHITECT_HUMAN_PROMPT
+from utils import get_language_instruction
 
 
 def architect_node(state: dict) -> dict:
@@ -14,9 +15,10 @@ def architect_node(state: dict) -> dict:
     读取 state["analysis_result"]，输出到 state["architecture_result"]。
     """
     analysis_result = state["analysis_result"]
+    lang_instruction = get_language_instruction(state.get("language", "en"))
 
     messages = [
-        SystemMessage(content=ARCHITECT_SYSTEM_PROMPT),
+        SystemMessage(content=ARCHITECT_SYSTEM_PROMPT + "\n" + lang_instruction),
         HumanMessage(
             content=ARCHITECT_HUMAN_PROMPT.format(analysis_result=analysis_result)
         ),

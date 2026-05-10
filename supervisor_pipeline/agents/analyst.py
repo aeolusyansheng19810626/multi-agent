@@ -6,6 +6,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 
 from llm import call_with_fallback
 from supervisor_pipeline.prompts.analyst_prompt import ANALYST_SYSTEM_PROMPT, ANALYST_HUMAN_PROMPT
+from utils import get_language_instruction
 
 
 def analyst_node(state: dict) -> dict:
@@ -14,9 +15,10 @@ def analyst_node(state: dict) -> dict:
     读取 state["requirement"]，输出分析结果到 state["analysis_result"]。
     """
     requirement = state["requirement"]
+    lang_instruction = get_language_instruction(state.get("language", "en"))
 
     messages = [
-        SystemMessage(content=ANALYST_SYSTEM_PROMPT),
+        SystemMessage(content=ANALYST_SYSTEM_PROMPT + "\n" + lang_instruction),
         HumanMessage(content=ANALYST_HUMAN_PROMPT.format(requirement=requirement)),
     ]
 

@@ -2,12 +2,14 @@ import json
 from langchain_core.messages import SystemMessage, HumanMessage
 from llm import call_with_fallback
 from loop_feedback.prompts import REVIEWER_SYSTEM_PROMPT, REVIEWER_HUMAN_PROMPT
+from utils import get_language_instruction
 
 def reviewer_node(state: dict) -> dict:
     code_result = state.get("code_result", "")
-    
+    lang_instruction = get_language_instruction(state.get("language", "en"))
+
     messages = [
-        SystemMessage(content=REVIEWER_SYSTEM_PROMPT),
+        SystemMessage(content=REVIEWER_SYSTEM_PROMPT + "\n" + lang_instruction),
         HumanMessage(content=REVIEWER_HUMAN_PROMPT.format(code_result=code_result)),
     ]
     

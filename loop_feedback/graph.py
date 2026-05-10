@@ -6,6 +6,7 @@ from loop_feedback.agents.reviewer import reviewer_node
 
 class LoopState(TypedDict):
     requirement: str
+    language: str
     code_result: Optional[str]
     iteration: int
     status: Optional[str]
@@ -47,10 +48,11 @@ def build_graph() -> StateGraph:
 
     return workflow.compile()
 
-def stream_loop(requirement: str):
+def stream_loop(requirement: str, language: str = "en"):
     graph = build_graph()
     initial_state: LoopState = {
         "requirement": requirement,
+        "language": language,
         "code_result": None,
         "iteration": 0,
         "status": None,
