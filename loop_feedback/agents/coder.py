@@ -13,8 +13,8 @@ def coder_node(state: dict) -> dict:
     new_iteration = iteration + 1
 
     messages = [
-        SystemMessage(content=CODER_SYSTEM_PROMPT + "\n" + lang_instruction),
-        HumanMessage(content=CODER_HUMAN_PROMPT.format(requirement=requirement, feedback=feedback)),
+        SystemMessage(content=lang_instruction + "\n\n" + CODER_SYSTEM_PROMPT),
+        HumanMessage(content=lang_instruction + "\n\n" + CODER_HUMAN_PROMPT.format(requirement=requirement, feedback=feedback)),
     ]
     
     result = call_with_fallback(messages)

@@ -18,8 +18,8 @@ def analyst_node(state: dict) -> dict:
     lang_instruction = get_language_instruction(state.get("language", "en"))
 
     messages = [
-        SystemMessage(content=ANALYST_SYSTEM_PROMPT + "\n" + lang_instruction),
-        HumanMessage(content=ANALYST_HUMAN_PROMPT.format(requirement=requirement)),
+        SystemMessage(content=lang_instruction + "\n\n" + ANALYST_SYSTEM_PROMPT),
+        HumanMessage(content=lang_instruction + "\n\n" + ANALYST_HUMAN_PROMPT.format(requirement=requirement)),
     ]
 
     result = call_with_fallback(messages)

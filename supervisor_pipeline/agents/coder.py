@@ -18,9 +18,9 @@ def coder_node(state: dict) -> dict:
     lang_instruction = get_language_instruction(state.get("language", "en"))
 
     messages = [
-        SystemMessage(content=CODER_SYSTEM_PROMPT + "\n" + lang_instruction),
+        SystemMessage(content=lang_instruction + "\n\n" + CODER_SYSTEM_PROMPT),
         HumanMessage(
-            content=CODER_HUMAN_PROMPT.format(architecture_result=architecture_result)
+            content=lang_instruction + "\n\n" + CODER_HUMAN_PROMPT.format(architecture_result=architecture_result)
         ),
     ]
 

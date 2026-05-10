@@ -9,8 +9,8 @@ def reviewer_node(state: dict) -> dict:
     lang_instruction = get_language_instruction(state.get("language", "en"))
 
     messages = [
-        SystemMessage(content=REVIEWER_SYSTEM_PROMPT + "\n" + lang_instruction),
-        HumanMessage(content=REVIEWER_HUMAN_PROMPT.format(code_result=code_result)),
+        SystemMessage(content=lang_instruction + "\n\n" + REVIEWER_SYSTEM_PROMPT),
+        HumanMessage(content=lang_instruction + "\n\n" + REVIEWER_HUMAN_PROMPT.format(code_result=code_result)),
     ]
     
     result = call_with_fallback(messages)

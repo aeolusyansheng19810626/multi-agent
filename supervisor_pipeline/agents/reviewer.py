@@ -18,9 +18,9 @@ def reviewer_node(state: dict) -> dict:
     lang_instruction = get_language_instruction(state.get("language", "en"))
 
     messages = [
-        SystemMessage(content=REVIEWER_SYSTEM_PROMPT + "\n" + lang_instruction),
+        SystemMessage(content=lang_instruction + "\n\n" + REVIEWER_SYSTEM_PROMPT),
         HumanMessage(
-            content=REVIEWER_HUMAN_PROMPT.format(code_result=code_result)
+            content=lang_instruction + "\n\n" + REVIEWER_HUMAN_PROMPT.format(code_result=code_result)
         ),
     ]
 

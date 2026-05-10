@@ -17,8 +17,8 @@ def create_worker_node(agent_name: str, system_prompt: str, input_key: str, outp
 
         lang_instruction = get_language_instruction(state.get("language", "en"))
         messages = [
-            SystemMessage(content=system_prompt + "\n" + lang_instruction),
-            HumanMessage(content=GENERIC_HUMAN_PROMPT.format(input_text=input_text)),
+            SystemMessage(content=lang_instruction + "\n\n" + system_prompt),
+            HumanMessage(content=lang_instruction + "\n\n" + GENERIC_HUMAN_PROMPT.format(input_text=input_text)),
         ]
 
         result = call_with_fallback(messages)

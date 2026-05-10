@@ -18,9 +18,9 @@ def architect_node(state: dict) -> dict:
     lang_instruction = get_language_instruction(state.get("language", "en"))
 
     messages = [
-        SystemMessage(content=ARCHITECT_SYSTEM_PROMPT + "\n" + lang_instruction),
+        SystemMessage(content=lang_instruction + "\n\n" + ARCHITECT_SYSTEM_PROMPT),
         HumanMessage(
-            content=ARCHITECT_HUMAN_PROMPT.format(analysis_result=analysis_result)
+            content=lang_instruction + "\n\n" + ARCHITECT_HUMAN_PROMPT.format(analysis_result=analysis_result)
         ),
     ]
 
